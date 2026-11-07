@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CentroController;
 use App\Http\Controllers\ConsultaPublicaController;
 use App\Http\Controllers\DerivacionController;
 use App\Http\Controllers\SolicitudController;
@@ -26,4 +27,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('derivaciones', DerivacionController::class)
         ->only(['show', 'update', 'destroy'])
         ->parameters(['derivaciones' => 'derivacion']);
+
+    Route::apiResource('centros', CentroController::class);
 });

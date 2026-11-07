@@ -9,7 +9,10 @@ class Centro extends Model
     protected $table = 'centros';
     public $timestamps = false;
 
-    protected $fillable = ['nombre', 'tipo', 'distrito', 'direccion', 'latitud', 'longitud', 'servicios', 'activo'];
+    protected $fillable = [
+        'nombre', 'tipo', 'distrito', 'direccion',
+        'latitud', 'longitud', 'servicios', 'activo',
+    ];
 
     protected function casts(): array
     {
