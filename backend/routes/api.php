@@ -12,14 +12,14 @@ use App\Http\Controllers\UsuarioController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1');
-Route::post('/registro', [AuthController::class, 'registro']);
+Route::post('/registro', [AuthController::class, 'registro'])->middleware('throttle:5,1');
 
 // Consulta pública: sin sesión, 10 por minuto por IP y solo el formato JOV-XXXXX
 Route::get('/consulta/{codigo}', [ConsultaPublicaController::class, 'mostrar'])
     ->where('codigo', 'JOV-[A-Z0-9]{5}')
     ->middleware('throttle:10,1');
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['auth:sanctum', 'activo'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/yo', [AuthController::class, 'yo']);
 
@@ -31,7 +31,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/solicitudes/{solicitud}/derivaciones', [DerivacionController::class, 'store']);
 
     Route::apiResource('derivaciones', DerivacionController::class)
-        ->only(['show', 'update', 'destroy'])
+        ->only(['index', 'show', 'update', 'destroy'])
         ->parameters(['derivaciones' => 'derivacion']);
 
     Route::apiResource('centros', CentroController::class);

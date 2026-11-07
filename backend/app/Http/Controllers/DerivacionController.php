@@ -14,14 +14,35 @@ use Illuminate\Support\Facades\Gate;
 
 class DerivacionController extends Controller
 {
+    /** Lista paginada (15 por página): el centro ve solo las suyas; orientador y admin, todas. Filtro ?estado= */
+    public function index(Request $request)
+    {
+        $u = $request->user();
+        abort_unless(in_array($u->rol, ['ORIENTADOR', 'CENTRO', 'ADMIN'], true), 403);
+
+        $q = Derivacion::with('centro', 'solicitud');
+
+        if ($u->rol === 'CENTRO') {
+            abort_if($u->centro_id === null, 403);
+            $q->where('centro_id', $u->centro_id);
+        }
+        if ($estado = $request->query('estado')) {
+            $q->where('estado', $estado);
+        }
+
+        return DerivacionResource::collection($q->orderByDesc('id')->paginate(15));
+    }
+
     /** El orientador deriva una solicitud EN_REVISION a un centro activo. */
     public function store(StoreDerivacionRequest $request, Solicitud $solicitud)
     {
-        abort_unless($solicitud->estado === 'EN_REVISION', 409, 'La solicitud debe estar EN_REVISION para derivarla.');
-
         $datos = $request->validated();
 
         $derivacion = DB::transaction(function () use ($datos, $solicitud, $request) {
+            // Se bloquea la fila para que dos orientadores no deriven la misma solicitud a la vez
+            $solicitud = Solicitud::whereKey($solicitud->id)->lockForUpdate()->firstOrFail();
+            abort_unless($solicitud->estado === 'EN_REVISION', 409, 'La solicitud debe estar EN_REVISION para derivarla.');
+
             $d = Derivacion::create([
                 'solicitud_id' => $solicitud->id,
                 'centro_id' => $datos['centro_id'],
@@ -51,7 +72,7 @@ class DerivacionController extends Controller
     {
         Gate::authorize('view', $derivacion);
 
-        return new DerivacionResource($derivacion->load('centro', 'seguimientos'));
+        return new DerivacionResource($derivacion->load('centro', 'solicitud', 'seguimientos'));
     }
 
     /** Centro: acepta, rechaza o marca atendida. Orientador: corrige datos si está PENDIENTE. */

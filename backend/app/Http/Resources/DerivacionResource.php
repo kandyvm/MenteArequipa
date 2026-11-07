@@ -12,6 +12,10 @@ class DerivacionResource extends JsonResource
         return [
             'id' => $this->id,
             'solicitud_id' => $this->solicitud_id,
+            'solicitud' => $this->whenLoaded('solicitud', fn () => [
+                'codigo' => $this->solicitud->codigo,
+                'nivel_riesgo' => $this->solicitud->nivel_riesgo,
+            ]),
             'centro' => $this->whenLoaded('centro', fn () => [
                 'id' => $this->centro->id,
                 'nombre' => $this->centro->nombre,
