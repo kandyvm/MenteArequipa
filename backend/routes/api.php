@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AuditoriaController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CentroController;
 use App\Http\Controllers\ConsultaPublicaController;
@@ -29,4 +30,7 @@ Route::middleware('auth:sanctum')->group(function () {
         ->parameters(['derivaciones' => 'derivacion']);
 
     Route::apiResource('centros', CentroController::class);
+
+    // Auditoría: solo lectura (ADMIN)
+    Route::get('/auditoria', [AuditoriaController::class, 'index']);
 });

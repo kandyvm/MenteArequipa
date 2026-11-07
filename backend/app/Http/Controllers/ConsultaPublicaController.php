@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Auditoria;
 use App\Models\Solicitud;
 use Illuminate\Http\JsonResponse;
 
@@ -18,6 +19,9 @@ class ConsultaPublicaController extends Controller
         if (! $solicitud) {
             return response()->json(['message' => 'Código no encontrado.'], 404);
         }
+
+        // Cada consulta queda en la auditoría (sin usuario: es pública)
+        Auditoria::registrar('CONSULTA_CASO', 'solicitud', $solicitud->id);
 
         $derivacion = $solicitud->derivaciones()->with('centro')->orderByDesc('id')->first();
 
