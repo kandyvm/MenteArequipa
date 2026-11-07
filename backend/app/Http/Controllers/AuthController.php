@@ -17,6 +17,11 @@ class AuthController extends Controller
     /** Inicia sesión con correo y contraseña (límite de 5 intentos por minuto en la ruta). */
     public function login(Request $request): JsonResponse
     {
+        // El frontend envía "contrasena"; la validación usa "password"
+        if ($request->has('contrasena') && ! $request->has('password')) {
+            $request->merge(['password' => $request->input('contrasena')]);
+        }
+
         $datos = $request->validate([
             'correo' => ['required', 'email', 'max:150'],
             'password' => ['required', 'string'],
