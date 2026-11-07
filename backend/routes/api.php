@@ -1,8 +1,43 @@
 <?php
 
-use Illuminate\Http\Request;
+use App\Http\Controllers\AuditoriaController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\CentroController;
+use App\Http\Controllers\ConsultaPublicaController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DerivacionController;
+use App\Http\Controllers\RecursoController;
+use App\Http\Controllers\SolicitudController;
+use App\Http\Controllers\UsuarioController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
+Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1');
+Route::post('/registro', [AuthController::class, 'registro'])->middleware('throttle:5,1');
+
+// Consulta pública: sin sesión, 10 por minuto por IP y solo el formato JOV-XXXXX
+Route::get('/consulta/{codigo}', [ConsultaPublicaController::class, 'mostrar'])
+    ->where('codigo', 'JOV-[A-Z0-9]{5}')
+    ->middleware('throttle:10,1');
+
+Route::middleware(['auth:sanctum', 'activo'])->group(function () {
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::get('/yo', [AuthController::class, 'yo']);
+
+    Route::get('/dashboard/resumen', [DashboardController::class, 'resumen']);
+
+    Route::apiResource('solicitudes', SolicitudController::class)
+        ->parameters(['solicitudes' => 'solicitud']);
+
+    Route::post('/solicitudes/{solicitud}/derivaciones', [DerivacionController::class, 'store']);
+
+    Route::apiResource('derivaciones', DerivacionController::class)
+        ->only(['index', 'show', 'update', 'destroy'])
+        ->parameters(['derivaciones' => 'derivacion']);
+
+    Route::apiResource('centros', CentroController::class);
+    Route::apiResource('usuarios', UsuarioController::class);
+    Route::apiResource('recursos', RecursoController::class);
+
+    // Auditoría: solo lectura (ADMIN)
+    Route::get('/auditoria', [AuditoriaController::class, 'index']);
+});

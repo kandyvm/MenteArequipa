@@ -11,9 +11,16 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
-    ->withMiddleware(function (Middleware $middleware) {
-        //
-    })
+->withMiddleware(function (Middleware $middleware) {
+    $middleware->statefulApi();
+
+    // Detrás de Railway/Vercel la IP real llega en X-Forwarded-For
+    $middleware->trustProxies(at: '*');
+
+    $middleware->alias([
+        'activo' => \App\Http\Middleware\EnsureUsuarioActivo::class,
+    ]);
+})
     ->withExceptions(function (Exceptions $exceptions) {
         //
     })->create();
