@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html { font-family: Inter, system-ui, sans-serif; color: #1F2937; background: #F5F3FF; }
+  /* WCAG 2.4.7: foco visible de 2 px con separación de 2 px */
+  :focus-visible { outline: 2px solid #6D28D9; outline-offset: 2px; }
+}
+@layer components {
+  .tarjeta { @apply bg-white rounded-xl border border-violet-200 p-5 shadow-sm; }
+  /* WCAG 2.5.5: área táctil mínima de 44 px */
+  .btn { @apply inline-flex items-center justify-center min-h-[44px] px-4 rounded-lg font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed; }
+  .btn-primario { @apply btn bg-brand text-white hover:bg-violet-800; }
+  .btn-secundario { @apply btn border-2 border-brand text-brand bg-white hover:bg-violet-50; }
+  .btn-peligro { @apply btn bg-crisis text-white hover:bg-red-700; }
+  .campo { @apply block w-full min-h-[44px] rounded-lg border border-gray-500 bg-white px-3 py-2; }
+  .etiqueta { @apply block font-medium mb-1; }
+  .error-txt { @apply text-sm mt-1 text-red-700; }
+}
