@@ -11,13 +11,13 @@ class Seguimiento extends Model
 
     protected $fillable = ['derivacion_id', 'autor_id', 'estado_nuevo', 'nota'];
 
+    protected function casts(): array
+    {
+        return ['creado_en' => 'datetime'];
+    }
+
     public function derivacion()
     {
         return $this->belongsTo(Derivacion::class, 'derivacion_id');
-    }
-
-    public function autor()
-    {
-        return $this->belongsTo(Usuario::class, 'autor_id');
     }
 }

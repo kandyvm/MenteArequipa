@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DerivacionController;
 use App\Http\Controllers\SolicitudController;
 use Illuminate\Support\Facades\Route;
 
@@ -11,7 +12,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/yo', [AuthController::class, 'yo']);
 
-    // ->parameters(...) evita que Laravel llame al parámetro "solicitude"
     Route::apiResource('solicitudes', SolicitudController::class)
         ->parameters(['solicitudes' => 'solicitud']);
+
+    Route::post('/solicitudes/{solicitud}/derivaciones', [DerivacionController::class, 'store']);
+
+    Route::apiResource('derivaciones', DerivacionController::class)
+        ->only(['show', 'update', 'destroy'])
+        ->parameters(['derivaciones' => 'derivacion']);
 });

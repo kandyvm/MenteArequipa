@@ -36,6 +36,6 @@ class Derivacion extends Model
 
     public function seguimientos()
     {
-        return $this->hasMany(Seguimiento::class, 'derivacion_id');
+        return $this->hasMany(Seguimiento::class, 'derivacion_id')->orderBy('id');
     }
 }
