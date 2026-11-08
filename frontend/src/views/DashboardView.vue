@@ -12,7 +12,7 @@ const ESTADOS = ['REGISTRADA', 'EN_REVISION', 'DERIVADA', 'ACEPTADA', 'ATENDIDA'
 
 const tarjetas = computed(() => !resumen.value ? [] : [
   ['Solicitudes nuevas', resumen.value.solicitudes_nuevas], ['Derivaciones en curso', resumen.value.derivaciones_en_curso],
-  ['Casos atendidos', resumen.value.casos_atendidos], ['Derivadas a la Línea 113', resumen.value.derivadas_113],
+  ['Casos atendidos', resumen.value.casos_atendidos], ['Derivadas a la Línea 113', resumen.value.derivaciones_113],
 ])
 async function cargar() {
   cargando.value = true; error.value = ''
@@ -22,7 +22,7 @@ async function cargar() {
       api.get('/api/solicitudes', { params }),
       auth.rol === 'ORIENTADOR' ? api.get('/api/dashboard/resumen') : Promise.resolve(null),
     ])
-    lista.value = s.data.data; resumen.value = r?.data.data ?? null
+    llista.value = s.data.data.map((x) => ({ ...x, derivacion: x.derivaciones?.at(-1) ?? null })); resumen.value = r?.data.data ?? null
   } catch (e) { error.value = mensajeDe(e) } finally { cargando.value = false }
 }
 async function accion(fn, ok) {
