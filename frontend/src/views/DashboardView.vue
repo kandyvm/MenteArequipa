@@ -22,7 +22,7 @@ async function cargar() {
       api.get('/api/solicitudes', { params }),
       auth.rol === 'ORIENTADOR' ? api.get('/api/dashboard/resumen') : Promise.resolve(null),
     ])
-    llista.value = s.data.data.map((x) => ({ ...x, derivacion: x.derivaciones?.at(-1) ?? null })); resumen.value = r?.data.data ?? null
+    lista.value = s.data.data.map((x) => ({ ...x, derivacion: x.derivaciones?.at(-1) ?? null })); resumen.value = r?.data.data ?? null
   } catch (e) { error.value = mensajeDe(e) } finally { cargando.value = false }
 }
 async function accion(fn, ok) {
