@@ -5,22 +5,23 @@ atención en salud mental en Arequipa. Proyecto académico de Programación Web 
 
 > **La plataforma no es un servicio de emergencia ni emite diagnósticos.** En una crisis: **Línea 113, opción 5**.
 
-> **Solo datos de prueba.** El despliegue de prueba está en Render (frontend estático, API en Docker y base de datos PostgreSQL), que aloja datos fuera del Perú.
+> **Solo datos de prueba.** El despliegue de prueba está en Render (aplicación en Docker y base de datos PostgreSQL), que aloja datos fuera del Perú.
 > Está prohibido cargar información real hasta resolver el flujo transfronterizo exigido por la Ley N.° 29733.
 
 ## Tecnologías
 
-Laravel 12 (PHP 8.2 o superior) con Sanctum, PostgreSQL 16 y Vue 3 con Vite y Tailwind (carpeta `frontend`).
+Laravel 12 (PHP 8.2 o superior) bajo el patrón MVC, con vistas Blade, PostgreSQL 16 y Tailwind CSS con Vite. La autenticación usa sesiones nativas de Laravel y las contraseñas se guardan con hash bcrypt.
 
 ## Requisitos
 
 PHP 8.2+, Composer, Node.js 20, PostgreSQL 16 y Git.
 
-## Instalación del backend
+## Instalación
 
 ```powershell
 cd backend
 composer install
+npm install
 copy .env.example .env
 php artisan key:generate
 ```
@@ -30,6 +31,7 @@ en `.env` y ejecuta:
 
 ```powershell
 php artisan migrate --seed
+npm run build
 php artisan serve
 ```
 
@@ -38,10 +40,11 @@ php artisan serve
 | Variable | Para qué sirve |
 |---|---|
 | `DB_*` | Conexión a PostgreSQL |
-| `SANCTUM_STATEFUL_DOMAINS` | Dominio del frontend que recibe las cookies de sesión |
-| `CORS_ALLOWED_ORIGINS` | Origen permitido del frontend (con credenciales) |
-| `SESSION_DOMAIN`, `SESSION_SAME_SITE` | Ajustes de cookies cuando frontend y API están en subdominios |
+| `APP_KEY` | Clave de la aplicación (se genera con `php artisan key:generate`) |
+| `APP_DEBUG` | Debe ser `false` en producción |
 | `APP_TIMEZONE` | Zona horaria (por defecto `America/Lima`) |
+
+El archivo `.env` nunca se sube al repositorio.
 
 ## Usuarios de prueba (contraseña `Prueba2026!`)
 
@@ -62,15 +65,17 @@ php artisan test --filter=SeguridadTest
 
 Las pruebas usan la base `mente_arequipa_test` (PostgreSQL), porque el esquema usa `INET` y triggers.
 
-## Rutas principales de la API
+## Rutas principales
 
-`POST /api/login` · `POST /api/registro` · `GET /api/consulta/{codigo}` (público) · `/api/solicitudes` ·
-`/api/derivaciones` · `/api/centros` · `/api/usuarios` · `/api/recursos` · `GET /api/auditoria` ·
-`GET /api/dashboard/resumen`
+`/login` · `/registro` · `/consulta` (público, con límite de intentos) · `/solicitudes` · `/derivaciones` · `/centros` · `/auditoria`
+
+## Seguridad
+
+Contraseñas con hash bcrypt, 4 roles con autorización por policies, protección CSRF, escape de salidas con Blade, consultas con Eloquent y parámetros (prevención de inyección SQL), límite de intentos en login y consulta pública, y auditoría inmutable con triggers en PostgreSQL.
 
 ## Ramas
 
-`main` (estable, solo Pull Request desde `develop`), `develop` (integración), `feature/*` y `hotfix/*`.
+`main` (estable, solo Pull Request desde `develop`), `develop` (integración), `feature/*` y `fix/*`.
 Commits con Conventional Commits.
 
 ## Licencia
