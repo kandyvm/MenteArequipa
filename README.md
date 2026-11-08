@@ -1,4 +1,3 @@
-develop
 # MENTE Arequipa
 
 Plataforma web de orientación y trazabilidad de derivaciones para jóvenes de 18 a 29 años que buscan
@@ -6,7 +5,7 @@ atención en salud mental en Arequipa. Proyecto académico de Programación Web 
 
 > **La plataforma no es un servicio de emergencia ni emite diagnósticos.** En una crisis: **Línea 113, opción 5**.
 
-> **Solo datos de prueba.** Los proveedores previstos (Vercel, Railway, Neon, Cloudflare R2) alojan datos fuera del Perú.
+> **Solo datos de prueba.** El despliegue de prueba está en Render (API en Docker y base de datos PostgreSQL), que aloja datos fuera del Perú.
 > Está prohibido cargar información real hasta resolver el flujo transfronterizo exigido por la Ley N.° 29733.
 
 ## Tecnologías
@@ -15,7 +14,7 @@ Laravel 12 (PHP 8.2 o superior) con Sanctum, PostgreSQL 16 y Vue 3 con Vite y Ta
 
 ## Requisitos
 
-PHP 8.2+, Composer, Node.js, PostgreSQL 16 y Git.
+PHP 8.2+, Composer, Node.js 20, PostgreSQL 16 y Git.
 
 ## Instalación del backend
 
@@ -77,6 +76,3 @@ Commits con Conventional Commits.
 ## Licencia
 
 Código bajo licencia MIT (ver `LICENSE`). Documentación bajo Creative Commons BY-NC-SA 4.0.
-
-Plataforma MENTE Arequipa. Para instalar, clonar el repo, entrar a la carpeta backend, correr composer install, etc.
-main
