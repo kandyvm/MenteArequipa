@@ -10,6 +10,12 @@ class RegistroJovenRequest extends FormRequest
     {
         return true;
     }
+        protected function prepareForValidation(): void
+    {
+        if ($this->has('contrasena') && ! $this->has('password')) {
+            $this->merge(['password' => $this->input('contrasena')]);
+        }
+    }
 
     public function rules(): array
     {

@@ -1,3 +1,4 @@
+develop
 # MENTE Arequipa
 
 Plataforma web de orientación y trazabilidad de derivaciones para jóvenes de 18 a 29 años que buscan
@@ -76,3 +77,6 @@ Commits con Conventional Commits.
 ## Licencia
 
 Código bajo licencia MIT (ver `LICENSE`). Documentación bajo Creative Commons BY-NC-SA 4.0.
+
+Plataforma MENTE Arequipa. Para instalar, clonar el repo, entrar a la carpeta backend, correr composer install, etc.
+main
