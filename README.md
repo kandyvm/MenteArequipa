@@ -43,7 +43,9 @@ php artisan serve
 | `SESSION_DOMAIN`, `SESSION_SAME_SITE` | Ajustes de cookies cuando frontend y API están en subdominios |
 | `APP_TIMEZONE` | Zona horaria (por defecto `America/Lima`) |
 
-## Usuarios de prueba (contraseña `Prueba2026!`)
+## Usuarios de prueba
+
+Al ejecutar `php artisan migrate --seed` en local se crean estas cuentas con la contraseña `Prueba2026!`:
 
 | Rol | Correo |
 |---|---|
@@ -51,6 +53,8 @@ php artisan serve
 | ORIENTADOR | orientador@prueba.pe |
 | CENTRO | centro@prueba.pe |
 | ADMIN | admin@prueba.pe |
+
+> En el despliegue de prueba en Render solo la cuenta JOVEN conserva esa contraseña. Las credenciales de ORIENTADOR, CENTRO y ADMIN se entregan por privado al docente.
 
 ## Pruebas
 
