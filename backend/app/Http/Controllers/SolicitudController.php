@@ -89,6 +89,13 @@ class SolicitudController extends Controller
                 || ($nuevo === 'CERRADA' && ! in_array($actual, ['CERRADA', 'CANCELADA'], true));
 
             abort_unless($valido, 409, 'Cambio de estado no permitido.');
+                        // No se cierra una solicitud mientras un centro tenga una derivación activa
+            abort_if(
+                $nuevo === 'CERRADA' && $solicitud->derivaciones()->whereIn('estado', ['PENDIENTE', 'ACEPTADA'])->exists(),
+                409,
+                'Hay una derivación activa: anúlala o espera a que el centro la atienda.'
+            );
+            
 
             $solicitud->update(['estado' => $nuevo]);
         } else {
