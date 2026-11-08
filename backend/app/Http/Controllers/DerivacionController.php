@@ -80,6 +80,12 @@ class DerivacionController extends Controller
     {
         $datos = $request->validated();
         $u = $request->user();
+        
+        abort_if(
+            in_array($derivacion->solicitud->estado, ['CERRADA', 'CANCELADA'], true),
+            409,
+            'La solicitud ya está cerrada.'
+        );
 
         if ($u->rol === 'CENTRO') {
             $nuevo = $datos['estado'];

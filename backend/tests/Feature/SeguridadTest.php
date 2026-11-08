@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Centro;
+use App\Models\Derivacion;
 use App\Models\Solicitud;
 use App\Models\Usuario;
 use App\Models\Joven;
@@ -157,6 +158,65 @@ class SeguridadTest extends TestCase
         $this->actingAs($usuarioCentro)->putJson("/api/derivaciones/{$id}", ['estado' => 'ACEPTADA'])
             ->assertOk()
             ->assertJsonPath('data.estado', 'ACEPTADA');
+    }
+        public function test_no_se_cierra_una_solicitud_con_derivacion_activa(): void
+    {
+        $centro = $this->crearCentro();
+        $orientador = $this->crearUsuario('ORIENTADOR', 'orientador@prueba.pe');
+        $joven = $this->crearJoven('joven@prueba.pe');
+        $solicitud = $this->crearSolicitud($joven, 'EN_REVISION');
+
+        $this->actingAs($orientador)->postJson("/api/solicitudes/{$solicitud->id}/derivaciones", [
+            'centro_id' => $centro->id,
+            'prioridad' => 1,
+        ])->assertCreated();
+
+        $this->actingAs($orientador)->putJson("/api/solicitudes/{$solicitud->id}", ['estado' => 'CERRADA'])
+            ->assertStatus(409);
+
+        $this->assertSame('DERIVADA', $solicitud->fresh()->estado);
+    }
+
+    public function test_el_centro_no_reabre_una_solicitud_cerrada(): void
+    {
+        $centro = $this->crearCentro();
+        $orientador = $this->crearUsuario('ORIENTADOR', 'orientador@prueba.pe');
+        $usuarioCentro = $this->crearUsuario('CENTRO', 'centro@prueba.pe', $centro->id);
+        $joven = $this->crearJoven('joven@prueba.pe');
+        $solicitud = $this->crearSolicitud($joven, 'CERRADA');
+
+        $derivacion = Derivacion::create([
+            'solicitud_id' => $solicitud->id,
+            'centro_id' => $centro->id,
+            'orientador_id' => $orientador->id,
+            'prioridad' => 1,
+            'estado' => 'PENDIENTE',
+        ]);
+
+        $this->actingAs($usuarioCentro)->putJson("/api/derivaciones/{$derivacion->id}", ['estado' => 'ACEPTADA'])
+            ->assertStatus(409);
+
+        $this->assertSame('CERRADA', $solicitud->fresh()->estado);
+    }
+
+    public function test_se_puede_cerrar_una_solicitud_cuando_la_derivacion_fue_anulada(): void
+    {
+        $centro = $this->crearCentro();
+        $orientador = $this->crearUsuario('ORIENTADOR', 'orientador@prueba.pe');
+        $joven = $this->crearJoven('joven@prueba.pe');
+        $solicitud = $this->crearSolicitud($joven, 'EN_REVISION');
+
+        $derivacionId = $this->actingAs($orientador)->postJson("/api/solicitudes/{$solicitud->id}/derivaciones", [
+            'centro_id' => $centro->id,
+            'prioridad' => 1,
+        ])->assertCreated()->json('data.id');
+
+        $this->actingAs($orientador)->deleteJson("/api/derivaciones/{$derivacionId}")
+            ->assertNoContent();
+
+        $this->actingAs($orientador)->putJson("/api/solicitudes/{$solicitud->id}", ['estado' => 'CERRADA'])
+            ->assertOk()
+            ->assertJsonPath('data.estado', 'CERRADA');
     }
 
     // ---------------------------------------------------------------- Ayudas
