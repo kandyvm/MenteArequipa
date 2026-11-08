@@ -19,6 +19,13 @@ class SolicitudResource extends JsonResource
             'estado' => $this->estado,
             'derivada_113' => $this->derivada_113,
             'creada_en' => $this->creada_en,
+            // Solo se incluye para orientador, centro y admin (ver SolicitudController)
+            'derivaciones' => $this->whenLoaded('derivaciones', fn () => $this->derivaciones->map(fn ($d) => [
+                'id' => $d->id,
+                'centro_id' => $d->centro_id,
+                'prioridad' => $d->prioridad,
+                'estado' => $d->estado,
+            ])->values()),
         ];
     }
 }

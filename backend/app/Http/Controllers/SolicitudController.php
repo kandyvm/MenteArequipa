@@ -5,9 +5,12 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreSolicitudRequest;
 use App\Http\Requests\UpdateSolicitudRequest;
 use App\Http\Resources\SolicitudResource;
+use App\Models\Consentimiento;
 use App\Models\Joven;
 use App\Models\Solicitud;
+use App\Models\Usuario;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 
 class SolicitudController extends Controller
@@ -18,7 +21,7 @@ class SolicitudController extends Controller
         Gate::authorize('viewAny', Solicitud::class);
         $u = $request->user();
 
-        $q = Solicitud::query();
+        $q = Solicitud::query()->with($this->relacionDerivaciones($u));
 
         if ($u->rol === 'JOVEN') {
             $q->whereIn('joven_id', Joven::where('usuario_id', $u->id)->select('id'));
@@ -42,25 +45,35 @@ class SolicitudController extends Controller
         $datos = $request->validated();
         $joven = Joven::where('usuario_id', $request->user()->id)->firstOrFail();
 
-        $solicitud = Solicitud::create([
-            'codigo' => $this->generarCodigo(),
-            'joven_id' => $joven->id,
-            'motivo' => strip_tags($datos['motivo']),
-            'descripcion' => strip_tags($datos['descripcion']),
-            'nivel_riesgo' => $datos['nivel_riesgo'],
-            'canal' => $datos['canal'],
-            'estado' => 'REGISTRADA',
-            'derivada_113' => $datos['nivel_riesgo'] === 'CRISIS',
-        ])->refresh();
+        // El consentimiento y la solicitud se guardan juntos o no se guarda nada
+        $solicitud = DB::transaction(function () use ($datos, $joven, $request) {
+            Consentimiento::create([
+                'joven_id' => $joven->id,
+                'version_texto' => 'v1.0',
+                'ip' => $request->ip(),
+                'user_agent' => substr((string) $request->userAgent(), 0, 255),
+            ]);
+
+            return Solicitud::create([
+                'codigo' => $this->generarCodigo(),
+                'joven_id' => $joven->id,
+                'motivo' => strip_tags($datos['motivo']),
+                'descripcion' => strip_tags($datos['descripcion']),
+                'nivel_riesgo' => $datos['nivel_riesgo'],
+                'canal' => $datos['canal'],
+                'estado' => 'REGISTRADA',
+                'derivada_113' => $datos['nivel_riesgo'] === 'CRISIS',
+            ])->refresh();
+        });
 
         return (new SolicitudResource($solicitud))->response()->setStatusCode(201);
     }
 
-    public function show(Solicitud $solicitud)
+    public function show(Request $request, Solicitud $solicitud)
     {
         Gate::authorize('view', $solicitud);
 
-        return new SolicitudResource($solicitud);
+        return new SolicitudResource($solicitud->load($this->relacionDerivaciones($request->user())));
     }
 
     /** El joven edita sus datos; el orientador cambia el estado. */
@@ -76,6 +89,13 @@ class SolicitudController extends Controller
                 || ($nuevo === 'CERRADA' && ! in_array($actual, ['CERRADA', 'CANCELADA'], true));
 
             abort_unless($valido, 409, 'Cambio de estado no permitido.');
+                        // No se cierra una solicitud mientras un centro tenga una derivación activa
+            abort_if(
+                $nuevo === 'CERRADA' && $solicitud->derivaciones()->whereIn('estado', ['PENDIENTE', 'ACEPTADA'])->exists(),
+                409,
+                'Hay una derivación activa: anúlala o espera a que el centro la atienda.'
+            );
+            
 
             $solicitud->update(['estado' => $nuevo]);
         } else {
@@ -90,7 +110,9 @@ class SolicitudController extends Controller
             $solicitud->update($datos);
         }
 
-        return new SolicitudResource($solicitud->refresh());
+        return new SolicitudResource(
+            $solicitud->refresh()->load($this->relacionDerivaciones($request->user()))
+        );
     }
 
     /** Cancelar sin borrar: pasa a CANCELADA. */
@@ -101,6 +123,24 @@ class SolicitudController extends Controller
         $solicitud->update(['estado' => 'CANCELADA']);
 
         return response()->noContent();
+    }
+
+    /**
+     * Derivaciones que puede ver cada rol dentro de una solicitud: el orientador y el
+     * admin ven todas, el centro solo las suyas y el joven ninguna (consulta por código).
+     */
+    private function relacionDerivaciones(Usuario $u): array
+    {
+        if ($u->rol === 'JOVEN') {
+            return [];
+        }
+
+        return ['derivaciones' => function ($d) use ($u) {
+            if ($u->rol === 'CENTRO') {
+                $d->where('centro_id', $u->centro_id);
+            }
+            $d->orderBy('id');
+        }];
     }
 
     /** Código aleatorio sin caracteres ambiguos (sin I, O, 0 ni 1). */

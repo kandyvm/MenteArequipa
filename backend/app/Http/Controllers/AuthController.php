@@ -29,8 +29,13 @@ class AuthController extends Controller
 
         $usuario = Usuario::where('correo', $datos['correo'])->where('activo', true)->first();
 
+        // Se compara siempre contra un hash (real o ficticio) para que el tiempo de
+        // respuesta no revele si el correo existe
+        $hash = $usuario?->contrasena_hash ?? Hash::make('contrasena-ficticia');
+        $coincide = Hash::check($datos['password'], $hash);
+
         // Mensaje genérico: no revela si el correo existe
-        if (! $usuario || ! Hash::check($datos['password'], $usuario->contrasena_hash)) {
+        if (! $usuario || ! $coincide) {
             return response()->json(['message' => 'Credenciales no válidas.'], 422);
         }
 
