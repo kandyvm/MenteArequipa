@@ -5,7 +5,7 @@ atención en salud mental en Arequipa. Proyecto académico de Programación Web 
 
 > **La plataforma no es un servicio de emergencia ni emite diagnósticos.** En una crisis: **Línea 113, opción 5**.
 
-> **Solo datos de prueba.** El despliegue de prueba está en Render (API en Docker y base de datos PostgreSQL), que aloja datos fuera del Perú.
+> **Solo datos de prueba.** El despliegue de prueba está en Render (frontend estático, API en Docker y base de datos PostgreSQL), que aloja datos fuera del Perú.
 > Está prohibido cargar información real hasta resolver el flujo transfronterizo exigido por la Ley N.° 29733.
 
 ## Tecnologías
