@@ -13,12 +13,16 @@ export const useAuth = defineStore('auth', {
     guardar(u) { this.user = u; u ? sessionStorage.setItem('user', JSON.stringify(u)) : sessionStorage.removeItem('user') },
     async login(correo, contrasena) {
       await api.get('/sanctum/csrf-cookie')
-      const { data } = await api.post('/api/login', { correo, contrasena })
+      const { data } = await api.post('/api/login', { correo, password: contrasena })
       this.guardar(data.data ?? data)
     },
     async registrar(datos) {
       await api.get('/sanctum/csrf-cookie')
-      await api.post('/api/registro', datos)
+      await api.post('/api/registro', {
+        ...datos,
+        password: datos.contrasena,
+        password_confirmation: datos.contrasena_confirmation,
+      })
       await this.login(datos.correo, datos.contrasena)
     },
     async logout() {
