@@ -16,7 +16,7 @@ onMounted(() => cargar())
 <template>
   <section>
     <h1 class="text-2xl font-semibold mb-1">Auditoría</h1>
-    <p class="text-muted mb-4">Registro de solo lectura: quién hizo qué y desde qué IP. Nadie puede modificarlo ni borrarlo, ni siquiera el administrador. Total: {{ total }}.</p>
+    <p class="text-muted mb-4">Registro de solo lectura: quién hizo qué y desde qué IP. La aplicación no permite modificarlo ni borrarlo (lo impiden triggers de PostgreSQL). Total: {{ total }}.</p>
     <p v-if="error" role="alert" class="mb-3 rounded-lg bg-red-50 p-3 text-red-700">{{ error }}</p>
     <p v-if="cargando" role="status">Cargando…</p>
     <div v-else class="overflow-x-auto tarjeta p-0">
