@@ -32,7 +32,12 @@ class DatabaseSeeder extends Seeder
              'servicios' => 'Acompañamiento psicosocial', 'activo' => true]
         );
 
-        $clave = Hash::make('Prueba2026!');
+        // Contraseñas de las cuentas de prueba. Pueden definirse en Render con las variables
+        // CLAVE_CUENTAS_PRUEBA (joven, orientador y centro) y CLAVE_ADMIN_PRUEBA (solo ADMIN).
+        // Si no existen (por ejemplo en local o en el CI) se usa la contraseña de demostración.
+        $claveDemo = env('CLAVE_CUENTAS_PRUEBA', 'Prueba2026!');
+        $clave = Hash::make($claveDemo);
+        $claveAdmin = Hash::make(env('CLAVE_ADMIN_PRUEBA', $claveDemo));
 
         $usuarioJoven = Usuario::updateOrCreate(
             ['correo' => 'joven@prueba.pe'],
@@ -61,7 +66,7 @@ class DatabaseSeeder extends Seeder
 
         Usuario::updateOrCreate(
             ['correo' => 'admin@prueba.pe'],
-            ['contrasena_hash' => $clave, 'rol' => 'ADMIN', 'activo' => true]
+            ['contrasena_hash' => $claveAdmin, 'rol' => 'ADMIN', 'activo' => true]
         );
     }
 }
