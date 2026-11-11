@@ -1,66 +1,67 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# MENTE Arequipa: API (backend)
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+API REST de MENTE Arequipa, hecha con **Laravel 12** (PHP 8.2 o superior), **Laravel Sanctum** en modo SPA y **PostgreSQL**.
+La interfaz está en la carpeta `../frontend` (Vue 3). La instalación completa y el despliegue se explican en el [README principal](../README.md).
 
-## About Laravel
+## Puesta en marcha
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+```powershell
+composer install
+copy .env.example .env
+php artisan key:generate
+php artisan migrate --seed
+php artisan serve
+```
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+Antes de migrar, crea las bases `mente_arequipa` y `mente_arequipa_test` en PostgreSQL y completa `DB_USERNAME` y `DB_PASSWORD` en `.env`.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Estructura
 
-## Learning Laravel
+| Carpeta | Contenido |
+|---|---|
+| `app/Models` | Modelos Eloquent: `Usuario`, `Joven`, `Consentimiento`, `Solicitud`, `Derivacion`, `Seguimiento`, `Centro`, `Recurso`, `Auditoria` |
+| `app/Http/Controllers` | Controladores de la API (autenticación, solicitudes, derivaciones, consulta pública, centros, usuarios, recursos, dashboard y auditoría) |
+| `app/Http/Requests` | Validación en el servidor (Form Requests) |
+| `app/Http/Resources` | Formato de las respuestas JSON |
+| `app/Http/Middleware` | `EnsureUsuarioActivo`: bloquea cuentas desactivadas |
+| `app/Policies` | Autorización de solicitudes, derivaciones y centros |
+| `app/Observers` | Registran en la auditoría los cambios de solicitudes y derivaciones |
+| `database/migrations` | Esquema de la base, incluidos los triggers que hacen inmutable la auditoría |
+| `database/seeders` | Centros y usuarios de prueba |
+| `routes/api.php` | Todas las rutas de la API |
+| `tests/Feature/SeguridadTest.php` | Pruebas de seguridad |
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## Autenticación
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+El login usa la sesión de Laravel con Sanctum en modo SPA: el frontend pide primero `GET /sanctum/csrf-cookie`
+y luego envía las peticiones con cookies y el encabezado `X-XSRF-TOKEN`. No se emiten tokens personales.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Rutas principales
 
-## Laravel Sponsors
+| Acceso | Rutas |
+|---|---|
+| Públicas | `POST /api/registro`, `POST /api/login` (5 por minuto), `GET /api/consulta/{codigo}` (10 por minuto) |
+| Con sesión | `POST /api/logout`, `GET /api/yo`, `GET /api/dashboard/resumen`, `solicitudes`, `derivaciones`, `centros`, `usuarios`, `recursos` y `GET /api/auditoria` |
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+Detalle completo en `routes/api.php`. La ruta `GET /up` sirve para comprobar que la aplicación está viva.
 
-### Premium Partners
+## Flujo de una solicitud
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+`REGISTRADA` → `EN_REVISION` (el orientador la revisa) → `DERIVADA` (se asigna un centro) → `ACEPTADA` → `ATENDIDA`.
+También puede quedar `CERRADA` o `CANCELADA`. Si el centro rechaza la derivación, la solicitud vuelve a `EN_REVISION`.
+Cada cambio de estado de una derivación se guarda en `seguimientos`, y los cambios de estado de la solicitud, en la auditoría.
 
-## Contributing
+## Pruebas
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```powershell
+php artisan test
+```
 
-## Code of Conduct
+Las pruebas usan PostgreSQL (base `mente_arequipa_test`) porque el esquema usa `INET` y triggers.
+Incluyen contraseñas con hash, inyección SQL, XSS, acceso por rol, límite de intentos, cuentas desactivadas,
+consentimiento y reglas de cierre de solicitudes.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## Docker
 
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+El `Dockerfile` de esta carpeta es el que usa Render. Instala las dependencias de PHP y, al arrancar, ejecuta
+`config:clear`, `migrate`, `db:seed` y `php artisan serve`. Si una migración o el seeder fallan, el arranque continúa y el error queda en los logs.
