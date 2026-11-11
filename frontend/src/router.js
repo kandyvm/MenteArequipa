@@ -9,6 +9,8 @@ const rutas = [
   { path: '/solicitudes/nueva', component: () => import('./views/NuevaSolicitudView.vue'), meta: { roles: ['JOVEN'], titulo: 'Nueva solicitud' } },
   { path: '/panel', component: () => import('./views/DashboardView.vue'), meta: { roles: ['JOVEN', 'ORIENTADOR', 'CENTRO', 'ADMIN'], titulo: 'Panel' } },
   { path: '/derivar/:id', component: () => import('./views/DerivacionView.vue'), meta: { roles: ['ORIENTADOR'], titulo: 'Derivación asistida' } },
+  { path: '/centros', component: () => import('./views/CentrosView.vue'), meta: { roles: ['ADMIN', 'CENTRO'], titulo: 'Centros' } },
+  { path: '/auditoria', component: () => import('./views/AuditoriaView.vue'), meta: { roles: ['ADMIN'], titulo: 'Auditoría' } },
   { path: '/:pathMatch(.*)*', redirect: '/consulta' },
 ]
 
