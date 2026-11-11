@@ -1,83 +1,67 @@
-# MENTE Arequipa
+# MENTE Arequipa: API (backend)
 
-Plataforma web de orientación y trazabilidad de derivaciones para jóvenes de 18 a 29 años que buscan
-atención en salud mental en Arequipa. Proyecto académico de Programación Web (Universidad Continental, NRC 40537).
+API REST de MENTE Arequipa, hecha con **Laravel 12** (PHP 8.2 o superior), **Laravel Sanctum** en modo SPA y **PostgreSQL**.
+La interfaz está en la carpeta `../frontend` (Vue 3). La instalación completa y el despliegue se explican en el [README principal](../README.md).
 
-> **La plataforma no es un servicio de emergencia ni emite diagnósticos.** En una crisis: **Línea 113, opción 5**.
-
-> **Solo datos de prueba.** El despliegue de prueba está en Render (aplicación en Docker y base de datos PostgreSQL), que aloja datos fuera del Perú.
-> Está prohibido cargar información real hasta resolver el flujo transfronterizo exigido por la Ley N.° 29733.
-
-## Tecnologías
-
-Laravel 12 (PHP 8.2 o superior) bajo el patrón MVC, con vistas Blade, PostgreSQL 16 y Tailwind CSS con Vite. La autenticación usa sesiones nativas de Laravel y las contraseñas se guardan con hash bcrypt.
-
-## Requisitos
-
-PHP 8.2+, Composer, Node.js 20, PostgreSQL 16 y Git.
-
-## Instalación
+## Puesta en marcha
 
 ```powershell
-cd backend
 composer install
-npm install
 copy .env.example .env
 php artisan key:generate
-```
-
-Crea las bases en PostgreSQL (`mente_arequipa` y `mente_arequipa_test`), escribe tu `DB_USERNAME` y `DB_PASSWORD`
-en `.env` y ejecuta:
-
-```powershell
 php artisan migrate --seed
-npm run build
 php artisan serve
 ```
 
-### Variables de entorno importantes
+Antes de migrar, crea las bases `mente_arequipa` y `mente_arequipa_test` en PostgreSQL y completa `DB_USERNAME` y `DB_PASSWORD` en `.env`.
 
-| Variable | Para qué sirve |
+## Estructura
+
+| Carpeta | Contenido |
 |---|---|
-| `DB_*` | Conexión a PostgreSQL |
-| `APP_KEY` | Clave de la aplicación (se genera con `php artisan key:generate`) |
-| `APP_DEBUG` | Debe ser `false` en producción |
-| `APP_TIMEZONE` | Zona horaria (por defecto `America/Lima`) |
+| `app/Models` | Modelos Eloquent: `Usuario`, `Joven`, `Consentimiento`, `Solicitud`, `Derivacion`, `Seguimiento`, `Centro`, `Recurso`, `Auditoria` |
+| `app/Http/Controllers` | Controladores de la API (autenticación, solicitudes, derivaciones, consulta pública, centros, usuarios, recursos, dashboard y auditoría) |
+| `app/Http/Requests` | Validación en el servidor (Form Requests) |
+| `app/Http/Resources` | Formato de las respuestas JSON |
+| `app/Http/Middleware` | `EnsureUsuarioActivo`: bloquea cuentas desactivadas |
+| `app/Policies` | Autorización de solicitudes, derivaciones y centros |
+| `app/Observers` | Registran en la auditoría los cambios de solicitudes y derivaciones |
+| `database/migrations` | Esquema de la base, incluidos los triggers que hacen inmutable la auditoría |
+| `database/seeders` | Centros y usuarios de prueba |
+| `routes/api.php` | Todas las rutas de la API |
+| `tests/Feature/SeguridadTest.php` | Pruebas de seguridad |
 
-El archivo `.env` nunca se sube al repositorio.
+## Autenticación
 
-## Usuarios de prueba (contraseña `Prueba2026!`)
+El login usa la sesión de Laravel con Sanctum en modo SPA: el frontend pide primero `GET /sanctum/csrf-cookie`
+y luego envía las peticiones con cookies y el encabezado `X-XSRF-TOKEN`. No se emiten tokens personales.
 
-| Rol | Correo |
+## Rutas principales
+
+| Acceso | Rutas |
 |---|---|
-| JOVEN | joven@prueba.pe |
-| ORIENTADOR | orientador@prueba.pe |
-| CENTRO | centro@prueba.pe |
-| ADMIN | admin@prueba.pe |
+| Públicas | `POST /api/registro`, `POST /api/login` (5 por minuto), `GET /api/consulta/{codigo}` (10 por minuto) |
+| Con sesión | `POST /api/logout`, `GET /api/yo`, `GET /api/dashboard/resumen`, `solicitudes`, `derivaciones`, `centros`, `usuarios`, `recursos` y `GET /api/auditoria` |
+
+Detalle completo en `routes/api.php`. La ruta `GET /up` sirve para comprobar que la aplicación está viva.
+
+## Flujo de una solicitud
+
+`REGISTRADA` → `EN_REVISION` (el orientador la revisa) → `DERIVADA` (se asigna un centro) → `ACEPTADA` → `ATENDIDA`.
+También puede quedar `CERRADA` o `CANCELADA`. Si el centro rechaza la derivación, la solicitud vuelve a `EN_REVISION`.
+Cada cambio de estado de una derivación se guarda en `seguimientos`, y los cambios de estado de la solicitud, en la auditoría.
 
 ## Pruebas
 
 ```powershell
-cd backend
 php artisan test
-php artisan test --filter=SeguridadTest
 ```
 
-Las pruebas usan la base `mente_arequipa_test` (PostgreSQL), porque el esquema usa `INET` y triggers.
+Las pruebas usan PostgreSQL (base `mente_arequipa_test`) porque el esquema usa `INET` y triggers.
+Incluyen contraseñas con hash, inyección SQL, XSS, acceso por rol, límite de intentos, cuentas desactivadas,
+consentimiento y reglas de cierre de solicitudes.
 
-## Rutas principales
+## Docker
 
-`/login` · `/registro` · `/consulta` (público, con límite de intentos) · `/solicitudes` · `/derivaciones` · `/centros` · `/auditoria`
-
-## Seguridad
-
-Contraseñas con hash bcrypt, 4 roles con autorización por policies, protección CSRF, escape de salidas con Blade, consultas con Eloquent y parámetros (prevención de inyección SQL), límite de intentos en login y consulta pública, y auditoría inmutable con triggers en PostgreSQL.
-
-## Ramas
-
-`main` (estable, solo Pull Request desde `develop`), `develop` (integración), `feature/*` y `fix/*`.
-Commits con Conventional Commits.
-
-## Licencia
-
-Código bajo licencia MIT (ver `LICENSE`). Documentación bajo Creative Commons BY-NC-SA 4.0.
+El `Dockerfile` de esta carpeta es el que usa Render. Instala las dependencias de PHP y, al arrancar, ejecuta
+`config:clear`, `migrate`, `db:seed` y `php artisan serve`. Si una migración o el seeder fallan, el arranque continúa y el error queda en los logs.
