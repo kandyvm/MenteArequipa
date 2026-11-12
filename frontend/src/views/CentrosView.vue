@@ -20,7 +20,7 @@ async function cargar() {
 }
 const puedeEditar = (c) => esAdmin.value || c.id === propio.value
 function nuevo() { Object.assign(f, vacio()); editando.value = 'nuevo'; errores.value = {} }
-function editar(c) { Object.assign(f, vacio(), c, { servicios: c.servicios ?? '', latitud: c.latitud ?? '', longitud: c.longitud ?? '' }); editando.value = c.id; errores.value = {} }
+function editar(c) { Object.assign(f, vacio(), c, { servicios: c.servicios ?? '', latitud: c.latitud ?? '', longitud: c.longitud ?? '' }); editando.value = c.id; errores.value = {}; window.scrollTo({ top: 0, behavior: 'smooth' }) }
 async function guardar() {
   guardando.value = true; errores.value = {}; error.value = ''
   const d = { ...f, latitud: f.latitud === '' ? null : f.latitud, longitud: f.longitud === '' ? null : f.longitud, servicios: f.servicios || null }

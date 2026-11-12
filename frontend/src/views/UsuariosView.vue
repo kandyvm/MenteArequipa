@@ -28,7 +28,7 @@ async function cargar() {
 function filtrar() { pagina.value = 1; cargar() }
 function irA(n) { pagina.value = n; cargar() }
 function nuevo() { Object.assign(f, vacio()); editando.value = 'nuevo'; errores.value = {}; aviso.value = '' }
-function editar(u) { Object.assign(f, { correo: u.correo, password: '', rol: u.rol, centro_id: u.centro_id ?? '' }); editando.value = u.id; errores.value = {}; aviso.value = '' }
+function editar(u) { Object.assign(f, { correo: u.correo, password: '', rol: u.rol, centro_id: u.centro_id ?? '' }); editando.value = u.id; errores.value = {}; aviso.value = ''; window.scrollTo({ top: 0, behavior: 'smooth' }) }
 
 async function guardar() {
   guardando.value = true; errores.value = {}; error.value = ''; aviso.value = ''
