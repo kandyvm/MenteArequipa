@@ -39,6 +39,7 @@ async function guardar() {
       await api.post('/api/usuarios', d)
       aviso.value = 'Usuario creado.'
     } else {
+      if (editado.value?.rol === 'CENTRO' && !f.centro_id) { errores.value = { centro_id: 'Elige un centro.' }; return }
       const d = { correo: f.correo }
       if (f.password) d.password = f.password
       if (editado.value?.rol === 'CENTRO') d.centro_id = f.centro_id || null
@@ -109,21 +110,21 @@ onMounted(cargar)
 
     <p v-if="cargando" role="status">Cargando…</p>
     <div v-else class="overflow-x-auto tarjeta p-0">
-      <table class="w-full text-left text-sm">
+      <table class="block sm:table w-full text-left text-sm">
         <caption class="sr-only">Usuarios del sistema</caption>
-        <thead class="bg-lav"><tr><th scope="col" class="p-3">Correo</th><th scope="col" class="p-3">Rol</th><th scope="col" class="p-3">Centro</th><th scope="col" class="p-3">Estado</th><th scope="col" class="p-3">Acciones</th></tr></thead>
-        <tbody>
-          <tr v-for="u in usuarios" :key="u.id" class="border-t border-violet-100">
-            <td class="p-3 font-medium">{{ u.correo }}</td>
-            <td class="p-3">{{ u.rol }}</td>
-            <td class="p-3">{{ u.centro_id ? nombreCentro(u.centro_id) : '—' }}</td>
-            <td class="p-3"><span class="rounded-full px-2.5 py-0.5 font-semibold" :class="u.activo ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-700'">{{ u.activo ? 'Activo' : 'Desactivado' }}</span></td>
-            <td class="p-3"><div class="flex flex-wrap gap-2">
+        <thead class="hidden sm:table-header-group bg-lav"><tr><th scope="col" class="p-3">Correo</th><th scope="col" class="p-3">Rol</th><th scope="col" class="p-3">Centro</th><th scope="col" class="p-3">Estado</th><th scope="col" class="p-3">Acciones</th></tr></thead>
+        <tbody class="block sm:table-row-group">
+          <tr v-for="u in usuarios" :key="u.id" class="block sm:table-row border-t border-violet-100">
+            <td class="block sm:table-cell p-3 font-medium">{{ u.correo }}</td>
+            <td class="block sm:table-cell p-3"><span class="sm:hidden font-sans font-semibold text-muted mr-2">Rol:</span>{{ u.rol }}</td>
+            <td class="block sm:table-cell p-3"><span class="sm:hidden font-sans font-semibold text-muted mr-2">Centro:</span>{{ u.centro_id ? nombreCentro(u.centro_id) : '—' }}</td>
+            <td class="block sm:table-cell p-3"><span class="sm:hidden font-sans font-semibold text-muted mr-2">Estado:</span><span class="rounded-full px-2.5 py-0.5 font-semibold" :class="u.activo ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-700'">{{ u.activo ? 'Activo' : 'Desactivado' }}</span></td>
+            <td class="block sm:table-cell p-3"><div class="flex flex-wrap gap-2">
               <button class="btn-secundario" @click="editar(u)">Editar</button>
               <button class="btn-secundario" @click="cambiarActivo(u)">{{ u.activo ? 'Desactivar' : 'Reactivar' }}</button>
             </div></td>
           </tr>
-          <tr v-if="!usuarios.length"><td colspan="5" class="p-3">No hay usuarios para mostrar.</td></tr>
+          <tr v-if="!usuarios.length" class="block sm:table-row"><td colspan="5" class="block sm:table-cell p-3">No hay usuarios para mostrar.</td></tr>
         </tbody>
       </table>
     </div>

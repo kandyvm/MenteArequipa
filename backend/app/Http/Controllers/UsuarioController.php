@@ -8,6 +8,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class UsuarioController extends Controller
 {
@@ -75,6 +76,16 @@ class UsuarioController extends Controller
         }
 
         $datos = $request->validate($reglas);
+
+        // Una cuenta CENTRO siempre necesita su centro; las demás cuentas no tienen centro.
+        if (array_key_exists('centro_id', $datos)) {
+            if ($usuario->rol === 'CENTRO' && $datos['centro_id'] === null) {
+                throw ValidationException::withMessages(['centro_id' => 'Una cuenta de centro necesita un centro.']);
+            }
+            if ($usuario->rol !== 'CENTRO') {
+                unset($datos['centro_id']);
+            }
+        }
 
         if (array_key_exists('activo', $datos) && ! $datos['activo'] && $usuario->id === $u->id) {
             abort(422, 'No puedes desactivar tu propia cuenta.');
