@@ -20,7 +20,7 @@ async function cargar() {
   catch (e) { error.value = mensajeDe(e) } finally { cargando.value = false }
 }
 function nuevo() { Object.assign(f, vacio()); editando.value = 'nuevo'; errores.value = {}; aviso.value = '' }
-function editar(r) { Object.assign(f, vacio(), { titulo: r.titulo, tipo: r.tipo, url: r.url, publicado: !!r.publicado }); editando.value = r.id; errores.value = {}; aviso.value = '' }
+function editar(r) { Object.assign(f, vacio(), { titulo: r.titulo, tipo: r.tipo, url: r.url, publicado: !!r.publicado }); editando.value = r.id; errores.value = {}; aviso.value = ''; window.scrollTo({ top: 0, behavior: 'smooth' }) }
 async function guardar() {
   guardando.value = true; errores.value = {}; error.value = ''; aviso.value = ''
   const d = { titulo: f.titulo, tipo: f.tipo, url: f.url, publicado: f.publicado }
