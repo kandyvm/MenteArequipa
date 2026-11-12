@@ -114,9 +114,11 @@ Si esas variables no existen (por ejemplo, en una instalación local), todas usa
 | `/panel` | Todos los roles: lista de solicitudes según el rol (el ORIENTADOR ve además un resumen) |
 | `/derivar/:id` | ORIENTADOR: deriva una solicitud a un centro |
 | `/centros` | ADMIN y CENTRO: gestión de centros de atención |
+| `/usuarios` | ADMIN: crea, edita, desactiva y reactiva cuentas de ORIENTADOR, CENTRO y ADMIN |
+| `/recursos` | ADMIN: gestiona los recursos de orientación. Los demás roles ven los publicados |
 | `/auditoria` | ADMIN: registro de auditoría de solo lectura |
 
-La gestión de usuarios y de recursos está disponible solo por API; todavía no tiene pantalla.
+Las cuentas de jóvenes las crea cada persona desde `/registro`; el ADMIN no las crea desde la pantalla de usuarios.
 
 ## API
 
