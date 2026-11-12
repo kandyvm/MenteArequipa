@@ -20,13 +20,13 @@ class DatabaseSeeder extends Seeder
              'servicios' => 'Turno mañana y tarde', 'activo' => true]
         );
 
-        Centro::firstOrCreate(
+        $honorio = Centro::firstOrCreate(
             ['nombre' => 'Hospital Honorio Delgado'],
             ['tipo' => 'MINSA', 'distrito' => 'Arequipa', 'direccion' => 'Dirección de prueba 200',
              'servicios' => 'Psiquiatría y psicología', 'activo' => true]
         );
 
-        Centro::firstOrCreate(
+        $comunitario = Centro::firstOrCreate(
             ['nombre' => 'Centro Comunitario de Prueba'],
             ['tipo' => 'ONG', 'distrito' => 'Cayma', 'direccion' => 'Dirección de prueba 300',
              'servicios' => 'Acompañamiento psicosocial', 'activo' => true]
@@ -59,10 +59,29 @@ class DatabaseSeeder extends Seeder
             ['contrasena_hash' => $clave, 'rol' => 'ORIENTADOR', 'activo' => true]
         );
 
-        Usuario::updateOrCreate(
-            ['correo' => 'centro@prueba.pe'],
-            ['contrasena_hash' => $clave, 'rol' => 'CENTRO', 'centro_id' => $sanAgustin->id, 'activo' => true]
-        );
+        // Antes había una sola cuenta de centro (centro@prueba.pe, de San Agustín). Se renombra para
+        // conservar su id y su historial de auditoría; si la cuenta nueva ya existe, la antigua se desactiva.
+        $antigua = Usuario::where('correo', 'centro@prueba.pe')->first();
+        if ($antigua) {
+            if (Usuario::where('correo', 'centro.sanagustin@prueba.pe')->exists()) {
+                $antigua->update(['activo' => false]);
+            } else {
+                $antigua->update(['correo' => 'centro.sanagustin@prueba.pe']);
+            }
+        }
+
+        // Una cuenta de prueba por cada centro, para poder aceptar derivaciones a cualquiera de ellos.
+        $cuentasCentro = [
+            'centro.sanagustin@prueba.pe' => $sanAgustin,
+            'centro.honorio@prueba.pe' => $honorio,
+            'centro.comunitario@prueba.pe' => $comunitario,
+        ];
+        foreach ($cuentasCentro as $correo => $centro) {
+            Usuario::updateOrCreate(
+                ['correo' => $correo],
+                ['contrasena_hash' => $clave, 'rol' => 'CENTRO', 'centro_id' => $centro->id, 'activo' => true]
+            );
+        }
 
         Usuario::updateOrCreate(
             ['correo' => 'admin@prueba.pe'],
