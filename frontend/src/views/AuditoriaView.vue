@@ -20,15 +20,15 @@ onMounted(() => cargar())
     <p v-if="error" role="alert" class="mb-3 rounded-lg bg-red-50 p-3 text-red-700">{{ error }}</p>
     <p v-if="cargando" role="status">Cargando…</p>
     <div v-else class="overflow-x-auto tarjeta p-0">
-      <table class="w-full text-left text-sm">
+      <table class="block sm:table w-full text-left text-sm">
         <caption class="sr-only">Registro de auditoría</caption>
-        <thead class="bg-lav"><tr><th scope="col" class="p-3">Fecha</th><th scope="col" class="p-3">Usuario</th><th scope="col" class="p-3">Acción</th><th scope="col" class="p-3">Entidad</th><th scope="col" class="p-3">IP</th></tr></thead>
-        <tbody>
-          <tr v-for="a in filas" :key="a.id" class="border-t border-violet-100">
-            <td class="p-3">{{ fecha(a.creado_en) }}</td><td class="p-3">{{ a.usuario_id ?? 'Público' }}</td>
-            <td class="p-3 font-mono">{{ a.accion }}</td><td class="p-3">{{ a.entidad }} #{{ a.entidad_id }}</td><td class="p-3 font-mono">{{ a.ip }}</td>
+        <thead class="hidden sm:table-header-group bg-lav"><tr><th scope="col" class="p-3">Fecha</th><th scope="col" class="p-3">Usuario</th><th scope="col" class="p-3">Acción</th><th scope="col" class="p-3">Entidad</th><th scope="col" class="p-3">IP</th></tr></thead>
+        <tbody class="block sm:table-row-group">
+          <tr v-for="a in filas" :key="a.id" class="block sm:table-row border-t border-violet-100">
+            <td class="block sm:table-cell p-3"><span class="sm:hidden font-sans font-semibold text-muted mr-2">Fecha:</span>{{ fecha(a.creado_en) }}</td><td class="block sm:table-cell p-3"><span class="sm:hidden font-sans font-semibold text-muted mr-2">Usuario:</span>{{ a.usuario_id ?? 'Público' }}</td>
+            <td class="block sm:table-cell p-3 font-mono"><span class="sm:hidden font-sans font-semibold text-muted mr-2">Acción:</span>{{ a.accion }}</td><td class="block sm:table-cell p-3"><span class="sm:hidden font-sans font-semibold text-muted mr-2">Entidad:</span>{{ a.entidad }} #{{ a.entidad_id }}</td><td class="block sm:table-cell p-3 font-mono"><span class="sm:hidden font-sans font-semibold text-muted mr-2">IP:</span>{{ a.ip }}</td>
           </tr>
-          <tr v-if="!filas.length"><td colspan="5" class="p-3">Sin registros.</td></tr>
+          <tr v-if="!filas.length" class="block sm:table-row"><td colspan="5" class="block sm:table-cell p-3">Sin registros.</td></tr>
         </tbody>
       </table>
     </div>

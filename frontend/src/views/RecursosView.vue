@@ -82,21 +82,21 @@ onMounted(cargar)
     <p v-if="cargando" role="status">Cargando…</p>
 
     <div v-else-if="esAdmin" class="overflow-x-auto tarjeta p-0">
-      <table class="w-full text-left text-sm">
+      <table class="block sm:table w-full text-left text-sm">
         <caption class="sr-only">Recursos de orientación</caption>
-        <thead class="bg-lav"><tr><th scope="col" class="p-3">Título</th><th scope="col" class="p-3">Tipo</th><th scope="col" class="p-3">Estado</th><th scope="col" class="p-3">Acciones</th></tr></thead>
-        <tbody>
-          <tr v-for="r in recursos" :key="r.id" class="border-t border-violet-100">
-            <td class="p-3 font-medium">{{ r.titulo }}<a :href="seguro(r.url)" target="_blank" rel="noopener noreferrer" class="block text-brand underline font-normal break-all">{{ r.url }}</a></td>
-            <td class="p-3">{{ etiquetaTipo(r.tipo) }}</td>
-            <td class="p-3"><span class="rounded-full px-2.5 py-0.5 font-semibold" :class="r.publicado ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-700'">{{ r.publicado ? 'Publicado' : 'Oculto' }}</span></td>
-            <td class="p-3"><div class="flex flex-wrap gap-2">
+        <thead class="hidden sm:table-header-group bg-lav"><tr><th scope="col" class="p-3">Título</th><th scope="col" class="p-3">Tipo</th><th scope="col" class="p-3">Estado</th><th scope="col" class="p-3">Acciones</th></tr></thead>
+        <tbody class="block sm:table-row-group">
+          <tr v-for="r in recursos" :key="r.id" class="block sm:table-row border-t border-violet-100">
+            <td class="block sm:table-cell p-3 font-medium">{{ r.titulo }}<a :href="seguro(r.url)" target="_blank" rel="noopener noreferrer" class="block text-brand underline font-normal break-all">{{ r.url }}</a></td>
+            <td class="block sm:table-cell p-3"><span class="sm:hidden font-sans font-semibold text-muted mr-2">Tipo:</span>{{ etiquetaTipo(r.tipo) }}</td>
+            <td class="block sm:table-cell p-3"><span class="sm:hidden font-sans font-semibold text-muted mr-2">Estado:</span><span class="rounded-full px-2.5 py-0.5 font-semibold" :class="r.publicado ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-700'">{{ r.publicado ? 'Publicado' : 'Oculto' }}</span></td>
+            <td class="block sm:table-cell p-3"><div class="flex flex-wrap gap-2">
               <button class="btn-secundario" @click="editar(r)">Editar</button>
               <button class="btn-secundario" @click="alternarPublicado(r)">{{ r.publicado ? 'Ocultar' : 'Publicar' }}</button>
               <button class="btn-secundario" @click="eliminar(r)">Eliminar</button>
             </div></td>
           </tr>
-          <tr v-if="!recursos.length"><td colspan="4" class="p-3">Todavía no hay recursos.</td></tr>
+          <tr v-if="!recursos.length" class="block sm:table-row"><td colspan="4" class="block sm:table-cell p-3">Todavía no hay recursos.</td></tr>
         </tbody>
       </table>
     </div>
