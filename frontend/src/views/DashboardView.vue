@@ -64,14 +64,16 @@ onMounted(cargar)
     </div>
 
     <div v-else class="overflow-x-auto tarjeta p-0">
-      <table class="w-full text-left text-sm">
+      <table class="block sm:table w-full text-left text-sm">
         <caption class="sr-only">Solicitudes</caption>
-        <thead class="bg-lav"><tr><th scope="col" class="p-3">Código</th><th scope="col" class="p-3">Motivo</th><th scope="col" class="p-3">Riesgo</th><th scope="col" class="p-3">Estado</th><th scope="col" class="p-3">Acciones</th></tr></thead>
-        <tbody>
-          <tr v-for="s in lista" :key="s.id" class="border-t border-violet-100 align-middle">
-            <td class="p-3 font-mono">{{ s.codigo }}</td><td class="p-3">{{ s.motivo }}</td>
-            <td class="p-3"><Insignia :valor="s.nivel_riesgo" /></td><td class="p-3"><Insignia :valor="s.estado" /></td>
-            <td class="p-3"><div class="flex flex-wrap gap-2">
+        <thead class="hidden sm:table-header-group bg-lav"><tr><th scope="col" class="p-3">Código</th><th scope="col" class="p-3">Motivo</th><th scope="col" class="p-3">Riesgo</th><th scope="col" class="p-3">Estado</th><th scope="col" class="p-3">Acciones</th></tr></thead>
+        <tbody class="block sm:table-row-group">
+          <tr v-for="s in lista" :key="s.id" class="block sm:table-row border-t border-violet-100 align-middle">
+            <td class="block sm:table-cell p-3 font-mono"><span class="sm:hidden font-sans font-semibold text-muted mr-2">Código:</span>{{ s.codigo }}</td>
+            <td class="block sm:table-cell p-3"><span class="sm:hidden font-semibold text-muted mr-2">Motivo:</span>{{ s.motivo }}</td>
+            <td class="block sm:table-cell p-3"><span class="sm:hidden font-semibold text-muted mr-2">Riesgo:</span><Insignia :valor="s.nivel_riesgo" /></td>
+            <td class="block sm:table-cell p-3"><span class="sm:hidden font-semibold text-muted mr-2">Estado:</span><Insignia :valor="s.estado" /></td>
+            <td class="block sm:table-cell p-3"><div class="flex flex-wrap gap-2">
               <router-link class="btn-secundario" :to="`/consulta/${s.codigo}`">Ver estado</router-link>
               <button v-if="auth.rol === 'JOVEN' && s.estado === 'REGISTRADA'" class="btn-secundario" @click="cancelar(s)">Cancelar</button>
               <button v-if="auth.rol === 'ORIENTADOR' && ['REGISTRADA','EN_REVISION'].includes(s.estado)" class="btn-primario" @click="revisar(s)">Derivar</button>
