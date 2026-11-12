@@ -18,6 +18,8 @@ const enlace = 'min-h-[44px] inline-flex items-center px-3 rounded-lg font-mediu
         <router-link v-if="auth.rol === 'JOVEN'" to="/solicitudes/nueva" :class="enlace">Nueva solicitud</router-link>
         <router-link to="/panel" :class="enlace">{{ auth.rol === 'JOVEN' ? 'Mis solicitudes' : 'Panel' }}</router-link>
         <router-link v-if="['ADMIN', 'CENTRO'].includes(auth.rol)" to="/centros" :class="enlace">Centros</router-link>
+        <router-link v-if="auth.rol === 'ADMIN'" to="/usuarios" :class="enlace">Usuarios</router-link>
+        <router-link to="/recursos" :class="enlace">Recursos</router-link>
         <router-link v-if="auth.rol === 'ADMIN'" to="/auditoria" :class="enlace">Auditoría</router-link>
         <button class="btn-secundario" @click="salir">Cerrar sesión</button>
       </template>
