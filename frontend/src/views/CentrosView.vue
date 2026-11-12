@@ -80,20 +80,20 @@ onMounted(cargar)
 
     <p v-if="cargando" role="status">Cargando…</p>
     <div v-else class="overflow-x-auto tarjeta p-0">
-      <table class="w-full text-left text-sm">
+      <table class="block sm:table w-full text-left text-sm">
         <caption class="sr-only">Directorio de centros</caption>
-        <thead class="bg-lav"><tr><th scope="col" class="p-3">Nombre</th><th scope="col" class="p-3">Tipo</th><th scope="col" class="p-3">Distrito</th><th scope="col" class="p-3">Estado</th><th scope="col" class="p-3">Acciones</th></tr></thead>
-        <tbody>
-          <tr v-for="c in centros" :key="c.id" class="border-t border-violet-100">
-            <td class="p-3 font-medium">{{ c.nombre }}<span class="block text-muted font-normal">{{ c.direccion }}</span></td>
-            <td class="p-3">{{ c.tipo }}</td><td class="p-3">{{ c.distrito }}</td>
-            <td class="p-3"><span class="rounded-full px-2.5 py-0.5 font-semibold" :class="c.activo ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-700'">{{ c.activo ? 'Activo' : 'Desactivado' }}</span></td>
-            <td class="p-3"><div class="flex flex-wrap gap-2">
+        <thead class="hidden sm:table-header-group bg-lav"><tr><th scope="col" class="p-3">Nombre</th><th scope="col" class="p-3">Tipo</th><th scope="col" class="p-3">Distrito</th><th scope="col" class="p-3">Estado</th><th scope="col" class="p-3">Acciones</th></tr></thead>
+        <tbody class="block sm:table-row-group">
+          <tr v-for="c in centros" :key="c.id" class="block sm:table-row border-t border-violet-100">
+            <td class="block sm:table-cell p-3 font-medium">{{ c.nombre }}<span class="block text-muted font-normal">{{ c.direccion }}</span></td>
+            <td class="block sm:table-cell p-3"><span class="sm:hidden font-sans font-semibold text-muted mr-2">Tipo:</span>{{ c.tipo }}</td><td class="block sm:table-cell p-3"><span class="sm:hidden font-sans font-semibold text-muted mr-2">Distrito:</span>{{ c.distrito }}</td>
+            <td class="block sm:table-cell p-3"><span class="sm:hidden font-sans font-semibold text-muted mr-2">Estado:</span><span class="rounded-full px-2.5 py-0.5 font-semibold" :class="c.activo ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-700'">{{ c.activo ? 'Activo' : 'Desactivado' }}</span></td>
+            <td class="block sm:table-cell p-3"><div class="flex flex-wrap gap-2">
               <button v-if="puedeEditar(c)" class="btn-secundario" @click="editar(c)">Editar</button>
               <button v-if="esAdmin" class="btn-secundario" @click="cambiarActivo(c)">{{ c.activo ? 'Desactivar' : 'Reactivar' }}</button>
             </div></td>
           </tr>
-          <tr v-if="!centros.length"><td colspan="5" class="p-3">No hay centros registrados.</td></tr>
+          <tr v-if="!centros.length" class="block sm:table-row"><td colspan="5" class="block sm:table-cell p-3">No hay centros registrados.</td></tr>
         </tbody>
       </table>
     </div>
