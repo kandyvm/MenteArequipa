@@ -151,7 +151,7 @@ GitHub Actions las ejecuta en cada push y Pull Request; también compila el fron
 
 El sitio estático necesita tres reglas Rewrite: `/sanctum/*` y `/api/*` hacia el backend, y `/*` hacia `/index.html`
 (para que funcionen las rutas de Vue). Al arrancar, el contenedor del backend ejecuta las migraciones y el seeder;
-si una de las dos falla, el arranque continúa y el error queda en los logs.
+si falla una migración, el arranque se detiene y Render conserva la versión anterior; si falla el seeder, el arranque continúa y el error queda en los logs.
 
 ## Seguridad
 
