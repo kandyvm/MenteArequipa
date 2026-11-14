@@ -23,6 +23,7 @@ return [
     'attributes' => [
         'correo' => 'correo',
         'password' => 'contraseña',
+        'password_actual' => 'contraseña actual',
         'fecha_nacimiento' => 'fecha de nacimiento',
         'distrito' => 'distrito',
         'telefono' => 'teléfono',
