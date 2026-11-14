@@ -18,7 +18,7 @@ class SolicitudPolicy
             'ADMIN', 'ORIENTADOR' => true,
             'JOVEN' => $this->esDueno($u, $s),
             'CENTRO' => $u->centro_id !== null
-                && $s->derivaciones()->where('centro_id', $u->centro_id)->exists(),
+                && $s->derivaciones()->vigentesParaCentro($u->centro_id)->exists(),
             default => false,
         };
     }
