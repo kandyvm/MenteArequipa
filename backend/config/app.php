@@ -41,6 +41,9 @@ return [
 
     'debug' => (bool) env('APP_DEBUG', false),
 
+    // Escribe en el log las cabeceras de IP de cada login (solo para diagnosticar en Render)
+    'depurar_ip' => (bool) env('DEPURAR_IP', false),
+
     /*
     |--------------------------------------------------------------------------
     | Application URL
