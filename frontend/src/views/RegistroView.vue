@@ -63,6 +63,8 @@ async function enviar() {
       <details class="mb-3 rounded-lg bg-lav p-3 text-sm">
         <summary class="cursor-pointer font-medium min-h-[44px] flex items-center">Consentimiento informado (Ley N.º 29733)</summary>
         <p class="mt-2">Usaremos tus datos solo para orientarte y dar seguimiento a tus derivaciones. No pedimos diagnóstico ni historia clínica. Guardamos la fecha, tu IP y tu navegador al aceptar. Puedes consultar tu caso con un código, sin dar tu nombre.</p>
+                <p class="mt-2">Es un proyecto académico en fase de prueba, así que no ingreses datos reales. La información se guarda en servidores de Render, fuera del Perú.</p>
+        <p class="mt-2">Puedes pedir ver, corregir o eliminar tus datos, u oponerte a su uso (derechos ARCO), escribiendo al equipo del proyecto.</p>
       </details>
       <label class="flex items-start gap-3 mb-1 min-h-[44px]">
         <input v-model="f.acepta_consentimiento" type="checkbox" class="mt-1 h-5 w-5" :aria-describedby="errores.acepta_consentimiento ? 'cons-err' : undefined" />
