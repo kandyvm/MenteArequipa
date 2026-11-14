@@ -1,3 +1,7 @@
+# Imagen del backend para Render (plan gratuito).
+# Se usa "php artisan serve" (servidor integrado de PHP) a propósito: el plan gratuito tiene
+# 0,1 de CPU y, al probar varios procesos (PHP_CLI_SERVER_WORKERS), respondía más lento.
+# Para un despliegue con más tráfico convendría PHP-FPM con Nginx.
 FROM php:8.2-cli
 
 # Instalar dependencias y extensiones para PostgreSQL
