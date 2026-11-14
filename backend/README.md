@@ -51,6 +51,8 @@ Detalle completo en `routes/api.php`. La ruta `GET /up` sirve para comprobar que
 También puede quedar `CERRADA` o `CANCELADA`. Si el centro rechaza la derivación, la solicitud vuelve a `EN_REVISION`.
 Cada cambio de estado de una derivación se guarda en `seguimientos`, y los cambios de estado de la solicitud, en la auditoría.
 
+La auditoría también registra los inicios de sesión (correctos y fallidos de cuentas existentes), los cierres de sesión, el registro de jóvenes y los cambios de usuarios, centros y recursos (crear, editar, desactivar, reactivar, publicar, ocultar y eliminar).
+
 ## Pruebas
 
 ```powershell

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreCentroRequest;
 use App\Http\Resources\CentroResource;
+use App\Models\Auditoria;
 use App\Models\Centro;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -31,6 +32,7 @@ class CentroController extends Controller
     public function store(StoreCentroRequest $request)
     {
         $centro = Centro::create($this->limpiar($request->validated()) + ['activo' => true])->refresh();
+        Auditoria::registrar('CREAR_CENTRO', 'centro', $centro->id);
 
         return (new CentroResource($centro))->response()->setStatusCode(201);
     }
@@ -64,6 +66,13 @@ class CentroController extends Controller
 
         $centro->update($this->limpiar($request->validate($reglas)));
 
+        if ($centro->wasChanged('activo')) {
+            Auditoria::registrar($centro->activo ? 'REACTIVAR_CENTRO' : 'DESACTIVAR_CENTRO', 'centro', $centro->id);
+        }
+        if ($centro->wasChanged(['nombre', 'tipo', 'distrito', 'direccion', 'latitud', 'longitud', 'servicios'])) {
+            Auditoria::registrar('EDITAR_CENTRO', 'centro', $centro->id);
+        }
+
         return new CentroResource($centro->refresh());
     }
 
@@ -73,6 +82,9 @@ class CentroController extends Controller
         Gate::authorize('delete', $centro);
 
         $centro->update(['activo' => false]);
+        if ($centro->wasChanged('activo')) {
+            Auditoria::registrar('DESACTIVAR_CENTRO', 'centro', $centro->id);
+        }
 
         return response()->noContent();
     }

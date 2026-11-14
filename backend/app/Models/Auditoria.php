@@ -16,11 +16,14 @@ class Auditoria extends Model
         return $this->belongsTo(Usuario::class, 'usuario_id');
     }
 
-    /** Registra quién hizo qué y desde qué IP. Solo inserta: la tabla es inmutable. */
-    public static function registrar(string $accion, string $entidad, int $entidadId): void
+    /**
+     * Registra quién hizo qué y desde qué IP. Solo inserta: el trigger impide modificar o borrar.
+     * $usuarioId sirve cuando todavía no hay sesión (inicio de sesión, registro).
+     */
+    public static function registrar(string $accion, string $entidad, int $entidadId, ?int $usuarioId = null): void
     {
         static::create([
-            'usuario_id' => request()->user()?->id,
+            'usuario_id' => $usuarioId ?? request()->user()?->id,
             'accion' => $accion,
             'entidad' => $entidad,
             'entidad_id' => $entidadId,

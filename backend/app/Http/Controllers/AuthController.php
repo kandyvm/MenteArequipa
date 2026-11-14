@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\RegistroJovenRequest;
+use App\Models\Auditoria;
 use App\Models\Consentimiento;
 use App\Models\Joven;
 use App\Models\Usuario;
@@ -36,11 +37,17 @@ class AuthController extends Controller
 
         // Mensaje genérico: no revela si el correo existe
         if (! $usuario || ! $coincide) {
+            // Solo se registra si la cuenta existe (la auditoría apunta a una entidad real)
+            if ($usuario) {
+                Auditoria::registrar('INICIO_SESION_FALLIDO', 'usuario', $usuario->id);
+            }
+
             return response()->json(['message' => 'Credenciales no válidas.'], 422);
         }
 
         Auth::guard('web')->login($usuario);
         $request->session()->regenerate();
+        Auditoria::registrar('INICIAR_SESION', 'usuario', $usuario->id, $usuario->id);
 
         return response()->json(['id' => $usuario->id, 'rol' => $usuario->rol]);
     }
@@ -48,6 +55,7 @@ class AuthController extends Controller
     /** Cierra la sesión. */
     public function logout(Request $request)
     {
+        Auditoria::registrar('CERRAR_SESION', 'usuario', $request->user()->id);
         Auth::guard('web')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
@@ -80,6 +88,8 @@ class AuthController extends Controller
                 'ip' => $request->ip(),
                 'user_agent' => substr((string) $request->userAgent(), 0, 255),
             ]);
+
+            Auditoria::registrar('REGISTRAR_JOVEN', 'usuario', $usuario->id, $usuario->id);
 
             return $usuario;
         });

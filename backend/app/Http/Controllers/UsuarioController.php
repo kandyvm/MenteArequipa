@@ -110,6 +110,7 @@ class UsuarioController extends Controller
         }
 
         $usuario->update($datos);
+        $this->auditarCambios($usuario);
 
         return response()->json(['data' => $this->formato($usuario->refresh())]);
     }
@@ -124,6 +125,20 @@ class UsuarioController extends Controller
         Auditoria::registrar('DESACTIVAR_USUARIO', 'usuario', $usuario->id);
 
         return response()->noContent();
+    }
+
+    /** Una fila de auditoría por tipo de cambio (contraseña, estado, datos). */
+    private function auditarCambios(Usuario $usuario): void
+    {
+        if ($usuario->wasChanged('contrasena_hash')) {
+            Auditoria::registrar('CAMBIAR_CONTRASENA', 'usuario', $usuario->id);
+        }
+        if ($usuario->wasChanged('activo')) {
+            Auditoria::registrar($usuario->activo ? 'REACTIVAR_USUARIO' : 'DESACTIVAR_USUARIO', 'usuario', $usuario->id);
+        }
+        if ($usuario->wasChanged(['correo', 'centro_id'])) {
+            Auditoria::registrar('EDITAR_USUARIO', 'usuario', $usuario->id);
+        }
     }
 
     private function formato(Usuario $x): array
