@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Auditoria;
 use App\Models\Recurso;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -25,6 +26,7 @@ class RecursoController extends Controller
         abort_unless($request->user()->rol === 'ADMIN', 403);
 
         $recurso = Recurso::create($this->limpiar($request->validate($this->reglas(true))))->refresh();
+        Auditoria::registrar('CREAR_RECURSO', 'recurso', $recurso->id);
 
         return response()->json(['data' => $recurso], 201);
     }
@@ -42,6 +44,13 @@ class RecursoController extends Controller
 
         $recurso->update($this->limpiar($request->validate($this->reglas(false))));
 
+        if ($recurso->wasChanged('publicado')) {
+            Auditoria::registrar($recurso->publicado ? 'PUBLICAR_RECURSO' : 'OCULTAR_RECURSO', 'recurso', $recurso->id);
+        }
+        if ($recurso->wasChanged(['titulo', 'tipo', 'url'])) {
+            Auditoria::registrar('EDITAR_RECURSO', 'recurso', $recurso->id);
+        }
+
         return response()->json(['data' => $recurso->refresh()]);
     }
 
@@ -49,7 +58,9 @@ class RecursoController extends Controller
     {
         abort_unless($request->user()->rol === 'ADMIN', 403);
 
+        $id = $recurso->id;
         $recurso->delete();
+        Auditoria::registrar('ELIMINAR_RECURSO', 'recurso', $id);
 
         return response()->noContent();
     }
