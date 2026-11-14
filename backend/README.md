@@ -66,4 +66,4 @@ consentimiento y reglas de cierre de solicitudes.
 ## Docker
 
 El `Dockerfile` de esta carpeta es el que usa Render. Instala las dependencias de PHP y, al arrancar, ejecuta
-`config:clear`, `migrate`, `db:seed` y `php artisan serve`. Si una migración o el seeder fallan, el arranque continúa y el error queda en los logs.
+`config:clear`, `migrate`, `db:seed` y `php artisan serve`. Si falla una migración, el arranque se detiene y Render conserva la versión anterior; si falla el seeder, el arranque continúa y el error queda en los logs.
