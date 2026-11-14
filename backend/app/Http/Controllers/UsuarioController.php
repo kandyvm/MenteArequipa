@@ -59,14 +59,21 @@ class UsuarioController extends Controller
         return response()->json(['data' => $this->formato($usuario)]);
     }
 
-    /** El ADMIN edita cuentas; cada persona solo puede cambiar su propia contraseña. */
+    /** El ADMIN edita cuentas; cada persona solo puede cambiar su propia contraseña, dando la actual. */
     public function update(Request $request, Usuario $usuario): JsonResponse
     {
         $u = $request->user();
         $esAdmin = $u->rol === 'ADMIN';
         abort_unless($esAdmin || $u->id === $usuario->id, 403);
 
+        $esPropia = $u->id === $usuario->id;
+
         $reglas = ['password' => ['sometimes', 'string', 'min:10']];
+        // Para cambiar la contraseña de la propia cuenta hay que dar la actual
+        // (si alguien deja la sesión abierta, no le pueden cambiar la clave)
+        if ($esPropia) {
+            $reglas['password_actual'] = ['required_with:password', 'string'];
+        }
         if ($esAdmin) {
             $reglas += [
                 'correo' => ['sometimes', 'email', 'max:150', Rule::unique('usuarios', 'correo')->ignore($usuario->id)],
@@ -76,6 +83,12 @@ class UsuarioController extends Controller
         }
 
         $datos = $request->validate($reglas);
+
+        if ($esPropia && isset($datos['password'])
+            && ! Hash::check($datos['password_actual'], $usuario->contrasena_hash)) {
+            throw ValidationException::withMessages(['password_actual' => 'La contraseña actual no es correcta.']);
+        }
+        unset($datos['password_actual']);
 
         // Una cuenta CENTRO siempre necesita su centro; las demás cuentas no tienen centro.
         if (array_key_exists('centro_id', $datos)) {
