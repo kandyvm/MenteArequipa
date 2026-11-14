@@ -166,7 +166,7 @@ si falla una migración, el arranque se detiene y Render conserva la versión an
 
 ## Ramas
 
-`main` es la rama estable. El trabajo se hace en ramas `feature/*` y `fix/*` y se integra con Pull Request.
+`main` es la rama estable. Del 7 al 11 de noviembre se hicieron algunos commits directamente en `main`; desde el 11 de noviembre todo se integra con Pull Request desde ramas `feature/*`, `feat/*`, `fix/*`, `docs/*` y `chore/*`.
 La mayoría de los commits usa el formato Conventional Commits (`feat`, `fix`, `docs`, `chore`).
 
 ## Licencia
