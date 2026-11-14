@@ -35,7 +35,7 @@ Navegador ──► Sitio estático (frontend/, Vue 3)
 
 ## Requisitos
 
-PHP 8.2+, Composer, Node.js 20, PostgreSQL y Git. El CI usa PostgreSQL 16 y la base de Render es PostgreSQL 18.
+PHP 8.2+, Composer, Node.js 22, PostgreSQL y Git. El CI usa PHP 8.3 (lo exige la herramienta de desarrollo `laravel/pint`) y PostgreSQL 18, igual que la base de Render. Producción usa PHP 8.2 e instala sin dependencias de desarrollo.
 
 ## Instalación local
 
