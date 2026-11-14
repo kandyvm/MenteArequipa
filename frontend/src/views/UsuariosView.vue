@@ -2,16 +2,20 @@
 <script setup>
 import { ref, reactive, onMounted, computed } from 'vue'
 import { api, erroresDe, mensajeDe } from '../api'
+import { useAuth } from '../stores/auth'
+const auth = useAuth()
 const usuarios = ref([]), centros = ref([]), pagina = ref(1), ultima = ref(1), total = ref(0)
 const filtroRol = ref(''), cargando = ref(true), error = ref(''), aviso = ref('')
 const editando = ref(null), errores = ref({}), guardando = ref(false)
 const ROLES = ['JOVEN', 'ORIENTADOR', 'CENTRO', 'ADMIN']
 const ROLES_NUEVOS = ['ORIENTADOR', 'CENTRO', 'ADMIN']
-const vacio = () => ({ correo: '', password: '', rol: 'ORIENTADOR', centro_id: '' })
+const vacio = () => ({ correo: '', password: '', password_actual: '', rol: 'ORIENTADOR', centro_id: '' })
 const f = reactive(vacio())
 
 const esNuevo = computed(() => editando.value === 'nuevo')
 const editado = computed(() => usuarios.value.find((u) => u.id === editando.value) ?? null)
+// Al cambiar la contraseña de la propia cuenta el servidor pide la actual
+const esPropia = computed(() => !esNuevo.value && editando.value === auth.user?.id)
 const pideCentro = computed(() => (esNuevo.value ? f.rol : editado.value?.rol) === 'CENTRO')
 const nombreCentro = (id) => centros.value.find((c) => c.id === id)?.nombre ?? '—'
 
@@ -28,7 +32,7 @@ async function cargar() {
 function filtrar() { pagina.value = 1; cargar() }
 function irA(n) { pagina.value = n; cargar() }
 function nuevo() { Object.assign(f, vacio()); editando.value = 'nuevo'; errores.value = {}; aviso.value = '' }
-function editar(u) { Object.assign(f, { correo: u.correo, password: '', rol: u.rol, centro_id: u.centro_id ?? '' }); editando.value = u.id; errores.value = {}; aviso.value = ''; window.scrollTo({ top: 0, behavior: 'smooth' }) }
+function editar(u) { Object.assign(f, { correo: u.correo, password: '', password_actual: '', rol: u.rol, centro_id: u.centro_id ?? '' }); editando.value = u.id; errores.value = {}; aviso.value = ''; window.scrollTo({ top: 0, behavior: 'smooth' }) }
 
 async function guardar() {
   guardando.value = true; errores.value = {}; error.value = ''; aviso.value = ''
@@ -42,6 +46,7 @@ async function guardar() {
       if (editado.value?.rol === 'CENTRO' && !f.centro_id) { errores.value = { centro_id: 'Elige un centro.' }; return }
       const d = { correo: f.correo }
       if (f.password) d.password = f.password
+      if (f.password && esPropia.value) d.password_actual = f.password_actual
       if (editado.value?.rol === 'CENTRO') d.centro_id = f.centro_id || null
       await api.patch(`/api/usuarios/${editando.value}`, d)
       aviso.value = 'Usuario actualizado.'
@@ -79,6 +84,11 @@ onMounted(cargar)
         <input id="u-password" v-model="f.password" type="password" autocomplete="new-password" minlength="10" class="campo" :aria-invalid="!!errores.password" aria-describedby="u-password-ayuda" />
         <p id="u-password-ayuda" class="text-sm text-muted mt-1">{{ esNuevo ? 'Mínimo 10 caracteres.' : 'Déjala vacía para no cambiarla. Si la escribes, mínimo 10 caracteres.' }}</p>
         <p v-if="errores.password" class="error-txt">{{ errores.password }}</p>
+      </div>
+      <div v-if="esPropia && f.password">
+        <label class="etiqueta" for="u-password-actual">Contraseña actual</label>
+        <input id="u-password-actual" v-model="f.password_actual" type="password" autocomplete="current-password" class="campo" :aria-invalid="!!errores.password_actual" :aria-describedby="errores.password_actual ? 'u-password-actual-err' : undefined" />
+        <p v-if="errores.password_actual" id="u-password-actual-err" class="error-txt">{{ errores.password_actual }}</p>
       </div>
       <div v-if="esNuevo">
         <label class="etiqueta" for="u-rol">Rol</label>
