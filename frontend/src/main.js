@@ -10,9 +10,9 @@ import { api } from './api'
 import { useAuth } from './stores/auth'
 
 const pinia = createPinia()
-// Si la sesión expira (401), volver al login sin dejar datos viejos en pantalla.
+// Si la sesión expira (401) o caduca el token CSRF (419), volver al login sin dejar datos viejos en pantalla.
 api.interceptors.response.use(null, (e) => {
-  if (e.response?.status === 401 && useAuth(pinia).logueado) {
+    if ([401, 419].includes(e.response?.status) && useAuth(pinia).logueado) {
     useAuth(pinia).guardar(null)
     router.push('/login')
   }
