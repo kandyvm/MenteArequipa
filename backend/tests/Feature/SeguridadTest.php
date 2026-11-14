@@ -12,7 +12,6 @@ use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
 /**
- * Pruebas automatizadas de seguridad (Tabla 19 del informe).
  * Ejecutar: php artisan test --filter=SeguridadTest
  * Requieren una base PostgreSQL de pruebas llamada mente_arequipa_test.
  */
@@ -22,7 +21,6 @@ class SeguridadTest extends TestCase
 
     private const CLAVE = 'Prueba2026!';
 
-    // ---------------------------------------------------------------- Las 7 pruebas de la Tabla 19
 
     public function test_la_contrasena_se_guarda_con_hash(): void
     {
