@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
 /**
+ * Pruebas automatizadas de seguridad: contraseñas con hash, inyección SQL, XSS, acceso por rol, límite de intentos y cuentas desactivadas.
  * Ejecutar: php artisan test --filter=SeguridadTest
  * Requieren una base PostgreSQL de pruebas llamada mente_arequipa_test.
  */
