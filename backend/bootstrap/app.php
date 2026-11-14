@@ -14,7 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
 ->withMiddleware(function (Middleware $middleware) {
     $middleware->statefulApi();
 
-        // Render (con Cloudflare delante) actúa como proxy; la IP del visitante la fija antes IpRealDelCliente.
+    // Render (con Cloudflare delante) actúa como proxy; la IP del visitante la fija antes IpRealDelCliente.
     $middleware->trustProxies(at: '*');
 
     $middleware->alias([
