@@ -19,6 +19,15 @@ class Derivacion extends Model
         return ['derivada_en' => 'datetime', 'aceptada_en' => 'datetime'];
     }
 
+    /**
+     * Derivaciones que dan acceso a un centro a los datos de la solicitud. Si la rechazó
+     * (o el orientador la anuló), el centro ya no ve la descripción del caso.
+     */
+    public function scopeVigentesParaCentro($q, ?int $centroId)
+    {
+        return $q->where('centro_id', $centroId)->where('estado', '!=', 'RECHAZADA');
+    }
+
     public function solicitud()
     {
         return $this->belongsTo(Solicitud::class, 'solicitud_id');

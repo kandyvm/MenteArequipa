@@ -26,7 +26,7 @@ class SolicitudController extends Controller
         if ($u->rol === 'JOVEN') {
             $q->whereIn('joven_id', Joven::where('usuario_id', $u->id)->select('id'));
         } elseif ($u->rol === 'CENTRO') {
-            $q->whereHas('derivaciones', fn ($d) => $d->where('centro_id', $u->centro_id));
+            $q->whereHas('derivaciones', fn ($d) => $d->vigentesParaCentro($u->centro_id));
         }
 
         if ($estado = $request->query('estado')) {
@@ -137,7 +137,7 @@ class SolicitudController extends Controller
 
         return ['derivaciones' => function ($d) use ($u) {
             if ($u->rol === 'CENTRO') {
-                $d->where('centro_id', $u->centro_id);
+                $d->vigentesParaCentro($u->centro_id);
             }
             $d->orderBy('id');
         }];
