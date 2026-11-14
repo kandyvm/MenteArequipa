@@ -90,19 +90,19 @@ El archivo `.env` nunca se sube al repositorio.
 
 | Rol | Correo | Contraseña |
 |---|---|---|
-| JOVEN | joven@prueba.pe | De demostración: `Prueba2026!` |
-| ORIENTADOR | orientador@prueba.pe | De demostración: `Prueba2026!` |
-| CENTRO (Centro de Salud Mental San Agustín) | centro.sanagustin@prueba.pe | De demostración: `Prueba2026!` |
-| CENTRO (Hospital Honorio Delgado) | centro.honorio@prueba.pe | De demostración: `Prueba2026!` |
-| CENTRO (Centro Comunitario de Prueba) | centro.comunitario@prueba.pe | De demostración: `Prueba2026!` |
+| JOVEN | joven@prueba.pe | Se entrega por privado al docente |
+| ORIENTADOR | orientador@prueba.pe | Se entrega por privado al docente |
+| CENTRO (Centro de Salud Mental San Agustín) | centro.sanagustin@prueba.pe | Se entrega por privado al docente |
+| CENTRO (Hospital Honorio Delgado) | centro.honorio@prueba.pe | Se entrega por privado al docente |
+| CENTRO (Centro Comunitario de Prueba) | centro.comunitario@prueba.pe | Se entrega por privado al docente |
 | ADMIN | admin@prueba.pe | Propia; se entrega por privado al docente |
 
 Cada cuenta de centro solo ve y acepta las derivaciones dirigidas a su propio centro. Para probar el flujo completo,
 deriva la solicitud al centro cuya cuenta vas a usar.
 
 Son cuentas con datos de prueba. El seeder se ejecuta en cada arranque del contenedor y vuelve a establecer estas
-contraseñas: la del ADMIN sale de `CLAVE_ADMIN_PRUEBA` y la de las demás, de `CLAVE_CUENTAS_PRUEBA`.
-Si esas variables no existen (por ejemplo, en una instalación local), todas usan `Prueba2026!`.
+contraseñas: en Render, la del ADMIN sale de `CLAVE_ADMIN_PRUEBA` y la de las demás, de `CLAVE_CUENTAS_PRUEBA`
+(ambas se entregan por privado al docente). En una instalación local, si esas variables no existen, todas usan `Prueba2026!`.
 
 ## Pantallas del frontend
 
