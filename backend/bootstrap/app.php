@@ -20,6 +20,9 @@ return Application::configure(basePath: dirname(__DIR__))
     $middleware->alias([
         'activo' => \App\Http\Middleware\EnsureUsuarioActivo::class,
     ]);
+
+    // Antes que todo lo demás: la IP real del visitante (auditoría y límite de intentos)
+    $middleware->prepend(\App\Http\Middleware\IpRealDelCliente::class);
 })
     ->withExceptions(function (Exceptions $exceptions) {
         //
