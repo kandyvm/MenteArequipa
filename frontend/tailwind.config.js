@@ -1,4 +1,4 @@
-/** Paleta del informe (Tabla 12). */
+/** Paleta de colores de la aplicación (morado de marca y rojo para crisis). */
 export default {
   content: ['./index.html', './src/**/*.{vue,js}'],
   theme: { extend: {

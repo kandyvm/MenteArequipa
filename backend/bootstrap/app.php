@@ -14,7 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
 ->withMiddleware(function (Middleware $middleware) {
     $middleware->statefulApi();
 
-    // Detrás de Railway/Vercel la IP real llega en X-Forwarded-For
+    // Render (con Cloudflare delante) actúa como proxy; la IP del visitante la fija antes IpRealDelCliente.
     $middleware->trustProxies(at: '*');
 
     $middleware->alias([
