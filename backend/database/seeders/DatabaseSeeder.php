@@ -35,14 +35,10 @@ class DatabaseSeeder extends Seeder
         // Contraseñas de las cuentas de prueba. Pueden definirse en Render con las variables
         // CLAVE_CUENTAS_PRUEBA (joven, orientador y centro) y CLAVE_ADMIN_PRUEBA (solo ADMIN).
         // Si no existen (por ejemplo en local o en el CI) se usa la contraseña de demostración.
-        $claveDemo = env('CLAVE_CUENTAS_PRUEBA', 'Prueba2026!');
-        $clave = Hash::make($claveDemo);
-        $claveAdmin = Hash::make(env('CLAVE_ADMIN_PRUEBA', $claveDemo));
+        $clave = env('CLAVE_CUENTAS_PRUEBA', 'Prueba2026!');
+        $claveAdmin = env('CLAVE_ADMIN_PRUEBA', $clave);
 
-        $usuarioJoven = Usuario::updateOrCreate(
-            ['correo' => 'joven@prueba.pe'],
-            ['contrasena_hash' => $clave, 'rol' => 'JOVEN', 'activo' => true]
-        );
+        $usuarioJoven = $this->cuentaDePrueba('joven@prueba.pe', $clave, ['rol' => 'JOVEN']);
 
         $joven = Joven::firstOrCreate(
             ['usuario_id' => $usuarioJoven->id],
@@ -54,10 +50,7 @@ class DatabaseSeeder extends Seeder
             ['version_texto' => 'v1.0', 'ip' => '127.0.0.1', 'user_agent' => 'seeder']
         );
 
-        Usuario::updateOrCreate(
-            ['correo' => 'orientador@prueba.pe'],
-            ['contrasena_hash' => $clave, 'rol' => 'ORIENTADOR', 'activo' => true]
-        );
+        $this->cuentaDePrueba('orientador@prueba.pe', $clave, ['rol' => 'ORIENTADOR']);
 
         // Antes había una sola cuenta de centro (centro@prueba.pe, de San Agustín). Se renombra para
         // conservar su id y su historial de auditoría; si la cuenta nueva ya existe, la antigua se desactiva.
@@ -77,15 +70,27 @@ class DatabaseSeeder extends Seeder
             'centro.comunitario@prueba.pe' => $comunitario,
         ];
         foreach ($cuentasCentro as $correo => $centro) {
-            Usuario::updateOrCreate(
-                ['correo' => $correo],
-                ['contrasena_hash' => $clave, 'rol' => 'CENTRO', 'centro_id' => $centro->id, 'activo' => true]
-            );
+            $this->cuentaDePrueba($correo, $clave, ['rol' => 'CENTRO', 'centro_id' => $centro->id]);
         }
 
-        Usuario::updateOrCreate(
-            ['correo' => 'admin@prueba.pe'],
-            ['contrasena_hash' => $claveAdmin, 'rol' => 'ADMIN', 'activo' => true]
-        );
+        $this->cuentaDePrueba('admin@prueba.pe', $claveAdmin, ['rol' => 'ADMIN']);
+    }
+
+    /**
+     * Crea o actualiza una cuenta de prueba. La contraseña solo se vuelve a cifrar si cambió:
+     * un hash nuevo en cada arranque haría que Sanctum cerrara todas las sesiones abiertas.
+     */
+    private function cuentaDePrueba(string $correo, string $clave, array $datos): Usuario
+    {
+        $usuario = Usuario::firstOrNew(['correo' => $correo]);
+        $usuario->fill($datos + ['activo' => true]);
+
+        if (! $usuario->exists || ! Hash::check($clave, $usuario->contrasena_hash)) {
+            $usuario->contrasena_hash = Hash::make($clave);
+        }
+
+        $usuario->save();
+
+        return $usuario;
     }
 }
