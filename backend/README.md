@@ -26,7 +26,7 @@ Antes de migrar, crea las bases `mente_arequipa` y `mente_arequipa_test` en Post
 | `app/Http/Middleware` | `EnsureUsuarioActivo`: bloquea cuentas desactivadas |
 | `app/Policies` | Autorización de solicitudes, derivaciones y centros |
 | `app/Observers` | Registran en la auditoría los cambios de solicitudes y derivaciones |
-| `database/migrations` | Esquema de la base, incluidos los triggers que hacen inmutable la auditoría |
+| `database/migrations` | Esquema de la base, incluido el trigger que impide modificar o borrar registros de la auditoría (no cubre `TRUNCATE`) |
 | `database/seeders` | Centros y usuarios de prueba |
 | `routes/api.php` | Todas las rutas de la API |
 | `tests/Feature/SeguridadTest.php` | Pruebas de seguridad |
