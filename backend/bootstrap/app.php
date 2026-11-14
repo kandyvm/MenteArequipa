@@ -23,6 +23,9 @@ return Application::configure(basePath: dirname(__DIR__))
 
     // Antes que todo lo demás: la IP real del visitante (auditoría y límite de intentos)
     $middleware->prepend(\App\Http\Middleware\IpRealDelCliente::class);
+
+    // Cabeceras de seguridad en todas las respuestas del backend
+    $middleware->append(\App\Http\Middleware\CabecerasSeguridad::class);
 })
     ->withExceptions(function (Exceptions $exceptions) {
         //
