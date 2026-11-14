@@ -162,7 +162,7 @@ si falla una migración, el arranque se detiene y Render conserva la versión an
 - Prevención de XSS: el servidor limpia los textos con `strip_tags` y el frontend no inserta HTML sin escapar.
 - Límite de intentos en login, registro y consulta pública.
 - Teléfono cifrado en la base y consentimiento informado guardado con su versión.
-- Auditoría inmutable: triggers de PostgreSQL impiden modificar o borrar sus registros desde la aplicación.
+- Auditoría de solo inserción: un trigger de PostgreSQL rechaza `UPDATE` y `DELETE` sobre sus registros. No bloquea `TRUNCATE` ni a un administrador de la base de datos, así que protege frente a la aplicación, no frente a quien controla el servidor.
 
 ## Ramas
 
