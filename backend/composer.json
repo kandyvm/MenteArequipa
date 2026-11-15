@@ -2,8 +2,8 @@
     "$schema": "https://getcomposer.org/schema.json",
     "name": "laravel/laravel",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
-    "keywords": ["laravel", "framework"],
+    "description": "API REST de MENTE Arequipa: orientación y derivaciones en salud mental (Laravel 12).",
+    "keywords": ["mente-arequipa", "salud-mental", "laravel"],
     "license": "MIT",
     "require": {
         "php": "^8.2",
