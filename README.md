@@ -169,6 +169,23 @@ si falla una migración, el arranque se detiene y Render conserva la versión an
 `main` es la rama estable. Del 7 al 11 de noviembre se hicieron algunos commits directamente en `main`; desde el 11 de noviembre todo se integra con Pull Request desde ramas `feature/*`, `feat/*`, `fix/*`, `docs/*` y `chore/*`.
 La mayoría de los commits usa el formato Conventional Commits (`feat`, `fix`, `docs`, `chore`).
 
+## Librerías y licencias
+
+| Librería | Versión | Uso | Licencia |
+|---|---|---|---|
+| Laravel Framework | 12.71.0 | Backend y API REST | MIT |
+| Laravel Sanctum | 4.3.3 | Inicio de sesión de la SPA | MIT |
+| Vue | 3.5.45 | Interfaz (SPA) | MIT |
+| Vue Router | 4.6.4 | Rutas de la interfaz | MIT |
+| Pinia | 2.3.1 | Estado de la sesión | MIT |
+| Axios | 1.21.0 | Llamadas a la API | MIT |
+| Tailwind CSS | 3.4.19 | Estilos | MIT |
+| Vite | 6.4.6 | Compilación del frontend | MIT |
+| Inter y JetBrains Mono (`@fontsource`) | 5.3.0 | Tipografías | SIL Open Font License 1.1 |
+| PostgreSQL | 18 | Base de datos | Licencia PostgreSQL |
+
+Versiones tomadas de `backend/composer.lock` y `frontend/package-lock.json`. Las librerías se usan sin modificar y respetando sus licencias.
+
 ## Licencia
 
 Código bajo licencia MIT (ver `LICENSE`). Documentación bajo Creative Commons BY-NC-SA 4.0.
