@@ -10,7 +10,7 @@ const enlace = 'min-h-[44px] inline-flex items-center px-3 rounded-lg font-mediu
 <template>
   <a href="#contenido" class="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:bg-white focus:p-3">Saltar al contenido</a>
   <Linea113 />
-    <!-- Aviso de entorno de prueba: el despliegue está en Render, fuera del Perú (Ley N.º 29733). -->
+  <!-- Aviso de entorno de prueba: el despliegue está en Render, fuera del Perú (Ley N.º 29733). -->
   <div role="note" class="bg-amber-50 border-b border-amber-200 text-amber-900 text-sm">
     <p class="mx-auto max-w-5xl px-4 py-2">Proyecto académico en fase de prueba: por favor, no ingreses datos personales reales.</p>
   </div>
