@@ -8,21 +8,23 @@ import Insignia from '../components/Insignia.vue'
 const auth = useAuth(), router = useRouter()
 const resumen = ref(null), lista = ref([]), cargando = ref(true), error = ref(''), aviso = ref('')
 const filtro = reactive({ estado: '', nivel_riesgo: '' })
+const pagina = ref(1), ultima = ref(1), total = ref(0)
 const ESTADOS = ['REGISTRADA', 'EN_REVISION', 'DERIVADA', 'ACEPTADA', 'ATENDIDA', 'CERRADA', 'CANCELADA']
 
 const tarjetas = computed(() => !resumen.value ? [] : [
   ['Solicitudes nuevas', resumen.value.solicitudes_nuevas], ['Derivaciones en curso', resumen.value.derivaciones_en_curso],
   ['Casos atendidos', resumen.value.casos_atendidos], ['Derivadas a la Línea 113', resumen.value.derivaciones_113],
 ])
-async function cargar() {
+async function cargar(p = pagina.value) {
   cargando.value = true; error.value = ''
-  const params = Object.fromEntries(Object.entries(filtro).filter(([, v]) => v))
+  const params = { ...Object.fromEntries(Object.entries(filtro).filter(([, v]) => v)), page: p }
   try {
     const [s, r] = await Promise.all([
       api.get('/api/solicitudes', { params }),
       auth.rol === 'ORIENTADOR' ? api.get('/api/dashboard/resumen') : Promise.resolve(null),
     ])
     lista.value = s.data.data.map((x) => ({ ...x, derivacion: x.derivaciones?.at(-1) ?? null })); resumen.value = r?.data.data ?? null
+    pagina.value = s.data.meta?.current_page ?? 1; ultima.value = s.data.meta?.last_page ?? 1; total.value = s.data.meta?.total ?? lista.value.length
   } catch (e) { error.value = mensajeDe(e) } finally { cargando.value = false }
 }
 async function accion(fn, ok) {
@@ -35,7 +37,7 @@ async function revisar(s) {
   try { if (s.estado === 'REGISTRADA') await api.patch(`/api/solicitudes/${s.id}`, { estado: 'EN_REVISION' }); router.push(`/derivar/${s.id}`) }
   catch (e) { error.value = mensajeDe(e) }
 }
-onMounted(cargar)
+onMounted(() => cargar(1))
 </script>
 <template>
   <section>
@@ -47,7 +49,7 @@ onMounted(cargar)
       </div>
     </div>
 
-    <form v-if="auth.rol !== 'JOVEN'" class="flex flex-wrap gap-3 items-end mb-4" @submit.prevent="cargar">
+    <form v-if="auth.rol !== 'JOVEN'" class="flex flex-wrap gap-3 items-end mb-4" @submit.prevent="cargar(1)">
       <div><label class="etiqueta" for="f-estado">Estado</label>
         <select id="f-estado" v-model="filtro.estado" class="campo"><option value="">Todos</option><option v-for="e in ESTADOS" :key="e" :value="e">{{ e.replace('_', ' ').toLowerCase() }}</option></select></div>
       <div><label class="etiqueta" for="f-riesgo">Riesgo</label>
@@ -89,5 +91,10 @@ onMounted(cargar)
         </tbody>
       </table>
     </div>
+    <nav v-if="!cargando && ultima > 1" class="flex items-center justify-between gap-3 mt-4" aria-label="Paginación">
+      <button class="btn-secundario" :disabled="pagina <= 1" @click="cargar(pagina - 1)">Anterior</button>
+      <span class="text-sm text-muted">Página {{ pagina }} de {{ ultima }} ({{ total }} solicitudes)</span>
+      <button class="btn-secundario" :disabled="pagina >= ultima" @click="cargar(pagina + 1)">Siguiente</button>
+    </nav>
   </section>
 </template>
