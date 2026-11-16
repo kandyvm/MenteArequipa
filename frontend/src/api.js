@@ -20,6 +20,8 @@ export function mensajeDe(e) {
   if (s === 429) return 'Demasiados intentos. Espera un minuto e inténtalo de nuevo.'
   if (s === 403) return 'No tienes permiso para esta acción.'
   if (s === 404) return 'No encontramos lo que buscas.'
+  if (s === 409) return e.response?.data?.message ?? 'No se puede hacer ese cambio en el estado actual.'
+  if (s === 419) return 'Tu sesión caducó. Recarga la página e inténtalo de nuevo.'
   if (s === 422) return e.response?.data?.message ?? 'Revisa los datos ingresados.'
   if (!e.response) return 'No hay conexión con el servidor. Revisa tu internet.'
   return 'Ocurrió un problema. Inténtalo de nuevo.'
