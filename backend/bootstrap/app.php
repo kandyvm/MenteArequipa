@@ -26,7 +26,11 @@ return Application::configure(basePath: dirname(__DIR__))
 
     // Cabeceras de seguridad en todas las respuestas del backend
     $middleware->append(\App\Http\Middleware\CabecerasSeguridad::class);
+
+    // No hay pantalla de login en el backend (es una API): sin sesión se responde 401, no se redirige
+    $middleware->redirectGuestsTo(fn () => null);
 })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        // Las rutas /api siempre responden en JSON (por ejemplo, 401 sin sesión), aunque se abran en el navegador.
+        $exceptions->shouldRenderJsonWhen(fn ($request) => $request->is('api/*') || $request->expectsJson());
     })->create();
