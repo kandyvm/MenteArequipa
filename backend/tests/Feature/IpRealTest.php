@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Route;
 use Tests\TestCase;
 
 /**
- * Detrás de Render (Cloudflare + proxy) la IP del visitante llega en True-Client-IP.
+ * Detrás de Render, la IP del visitante llega en CF-Connecting-IP (Cloudflare); True-Client-IP es el respaldo.
  * Ejecutar: php artisan test --filter=IpRealTest
  */
 class IpRealTest extends TestCase
