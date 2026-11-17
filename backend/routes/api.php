@@ -11,13 +11,14 @@ use App\Http\Controllers\SolicitudController;
 use App\Http\Controllers\UsuarioController;
 use Illuminate\Support\Facades\Route;
 
-Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1');
-Route::post('/registro', [AuthController::class, 'registro'])->middleware('throttle:5,1');
+// Cada ruta pública tiene su propio contador por IP (ver AppServiceProvider)
+Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:login');
+Route::post('/registro', [AuthController::class, 'registro'])->middleware('throttle:registro');
 
 // Consulta pública: sin sesión, 10 por minuto por IP y solo el formato JOV-XXXXX
 Route::get('/consulta/{codigo}', [ConsultaPublicaController::class, 'mostrar'])
     ->where('codigo', 'JOV-[A-Z0-9]{5}')
-    ->middleware('throttle:10,1');
+    ->middleware('throttle:consulta');
 
 Route::middleware(['auth:sanctum', 'activo'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);

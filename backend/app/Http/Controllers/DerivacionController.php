@@ -80,7 +80,7 @@ class DerivacionController extends Controller
     {
         $datos = $request->validated();
         $u = $request->user();
-        
+
         abort_if(
             in_array($derivacion->solicitud->estado, ['CERRADA', 'CANCELADA'], true),
             409,
@@ -98,6 +98,10 @@ class DerivacionController extends Controller
             abort_unless(in_array($nuevo, $permitidos, true), 409, 'Cambio de estado no permitido.');
 
             DB::transaction(function () use ($derivacion, $nuevo, $datos, $u) {
+                // Se bloquea la fila y se vuelve a comprobar: dos clics seguidos no aplican el cambio dos veces
+                $estadoActual = Derivacion::whereKey($derivacion->id)->lockForUpdate()->value('estado');
+                abort_unless($estadoActual === $derivacion->estado, 409, 'La derivación cambió mientras tanto. Recarga la página.');
+
                 $derivacion->update([
                     'estado' => $nuevo,
                     'aceptada_en' => $nuevo === 'ACEPTADA' ? now() : $derivacion->aceptada_en,
@@ -127,13 +131,28 @@ class DerivacionController extends Controller
         return new DerivacionResource($derivacion->refresh()->load('centro', 'seguimientos'));
     }
 
-    /** Anular: solo el orientador y solo si está PENDIENTE (409 en otro caso). */
+    /**
+     * Anular: solo el orientador, si está PENDIENTE o ACEPTADA (409 en otro caso).
+     * ACEPTADA también se puede anular para que el caso no quede bloqueado si el centro no lo atiende.
+     */
     public function destroy(Request $request, Derivacion $derivacion)
     {
         Gate::authorize('delete', $derivacion);
-        abort_unless($derivacion->estado === 'PENDIENTE', 409, 'Solo se anula una derivación PENDIENTE.');
+        abort_unless(
+            in_array($derivacion->estado, ['PENDIENTE', 'ACEPTADA'], true),
+            409,
+            'Solo se anula una derivación PENDIENTE o ACEPTADA.'
+        );
+        abort_if(
+            in_array($derivacion->solicitud->estado, ['CERRADA', 'CANCELADA'], true),
+            409,
+            'La solicitud ya está cerrada.'
+        );
 
         DB::transaction(function () use ($derivacion, $request) {
+            $estadoActual = Derivacion::whereKey($derivacion->id)->lockForUpdate()->value('estado');
+            abort_unless($estadoActual === $derivacion->estado, 409, 'La derivación cambió mientras tanto. Recarga la página.');
+
             $derivacion->update(['estado' => 'RECHAZADA']);
             $derivacion->solicitud->update(['estado' => 'EN_REVISION']);
 

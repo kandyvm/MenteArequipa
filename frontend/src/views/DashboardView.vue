@@ -33,6 +33,16 @@ async function accion(fn, ok) {
 }
 const cancelar = (s) => accion(() => api.delete(`/api/solicitudes/${s.id}`), 'Solicitud cancelada.')
 const estadoDerivacion = (s, estado) => accion(() => api.patch(`/api/derivaciones/${s.derivacion.id}`, { estado }), 'Derivación actualizada.')
+// Orientador: anular la derivación activa (el caso vuelve a EN_REVISION) o cerrar el caso
+const derivacionActiva = (s) => !!s.derivacion && ['PENDIENTE', 'ACEPTADA'].includes(s.derivacion.estado)
+function anularDerivacion(s) {
+  if (!window.confirm(`¿Anular la derivación de ${s.codigo}? El caso volverá a revisión.`)) return
+  accion(() => api.delete(`/api/derivaciones/${s.derivacion.id}`), 'Derivación anulada.')
+}
+function cerrar(s) {
+  if (!window.confirm(`¿Cerrar el caso ${s.codigo}?`)) return
+  accion(() => api.patch(`/api/solicitudes/${s.id}`, { estado: 'CERRADA' }), 'Caso cerrado.')
+}
 async function revisar(s) {
   try { if (s.estado === 'REGISTRADA') await api.patch(`/api/solicitudes/${s.id}`, { estado: 'EN_REVISION' }); router.push(`/derivar/${s.id}`) }
   catch (e) { error.value = mensajeDe(e) }
@@ -79,6 +89,10 @@ onMounted(() => cargar(1))
               <router-link class="btn-secundario" :to="`/consulta/${s.codigo}`">Ver estado</router-link>
               <button v-if="auth.rol === 'JOVEN' && s.estado === 'REGISTRADA'" class="btn-secundario" @click="cancelar(s)">Cancelar</button>
               <button v-if="auth.rol === 'ORIENTADOR' && ['REGISTRADA','EN_REVISION'].includes(s.estado)" class="btn-primario" @click="revisar(s)">Derivar</button>
+              <template v-if="auth.rol === 'ORIENTADOR' && !['CERRADA','CANCELADA'].includes(s.estado)">
+                <button v-if="derivacionActiva(s)" class="btn-secundario" @click="anularDerivacion(s)">Anular derivación</button>
+                <button v-else-if="['EN_REVISION','ATENDIDA'].includes(s.estado)" class="btn-secundario" @click="cerrar(s)">Cerrar caso</button>
+              </template>
               <template v-if="auth.rol === 'CENTRO' && s.derivacion">
                 <template v-if="s.derivacion.estado === 'PENDIENTE'">
                   <button class="btn-primario" @click="estadoDerivacion(s, 'ACEPTADA')">Aceptar</button>
