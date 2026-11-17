@@ -146,7 +146,7 @@ GitHub Actions las ejecuta en cada push a `main`, `develop`, `feature/**` y `fix
 | Servicio | Configuración |
 |---|---|
 | Backend (Docker) | Raíz `backend`, Dockerfile `backend/Dockerfile`. Despliegue manual. |
-| Frontend (sitio estático) | Repositorio `kandyvm/MenteArequipa`, rama `main`, raíz `frontend`, build `npm install && npm run build`, publica `dist`. Se vuelve a desplegar cuando cambia la rama, salvo que se apague el Auto-Deploy. |
+| Frontend (sitio estático) | Repositorio `kandyvm/MenteArequipa`, rama `main`, raíz `frontend`, build `npm install && npm run build`, publica `dist`. Hoy tiene el Auto-Deploy apagado: después de cada merge se despliega a mano con "Manual Deploy". |
 | Base de datos | PostgreSQL de Render (plan gratuito, con fecha de vencimiento). |
 
 El sitio estático necesita tres reglas Rewrite: `/sanctum/*` y `/api/*` hacia el backend, y `/*` hacia `/index.html`

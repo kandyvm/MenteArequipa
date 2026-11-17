@@ -67,6 +67,11 @@ class UsuarioController extends Controller
         abort_unless($esAdmin || $u->id === $usuario->id, 403);
 
         $esPropia = $u->id === $usuario->id;
+        // En la propia cuenta se usa el mismo objeto de la sesión: así, al cambiar la contraseña,
+        // la sesión guarda la clave nueva y sigue abierta (las demás sesiones sí se cierran).
+        if ($esPropia) {
+            $usuario = $u;
+        }
 
         $reglas = ['password' => ['sometimes', 'string', 'min:10']];
         // Para cambiar la contraseña de la propia cuenta hay que dar la actual

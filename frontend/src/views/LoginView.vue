@@ -3,6 +3,7 @@ import { reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuth } from '../stores/auth'
 import { mensajeDe } from '../api'
+import { CORREO_CONTACTO } from '../constantes'
 const auth = useAuth(), route = useRoute(), router = useRouter()
 const f = reactive({ correo: '', contrasena: '' })
 const ver = ref(false), error = ref(''), cargando = ref(false)
@@ -31,6 +32,7 @@ async function enviar() {
       <p v-if="error" role="alert" class="error-txt mb-3">{{ error }}</p>
       <button class="btn-primario w-full" :disabled="cargando">{{ cargando ? 'Ingresando…' : 'Ingresar' }}</button>
     </form>
-    <p class="mt-4 text-sm">¿Eres joven y aún no tienes cuenta? <router-link class="text-brand underline" to="/registro">Crear cuenta</router-link></p>
+    <p class="mt-4 text-sm">¿Olvidaste tu contraseña? Escribe a <a class="text-brand underline" :href="`mailto:${CORREO_CONTACTO}`">{{ CORREO_CONTACTO }}</a> desde el correo con el que te registraste y te ayudaremos a recuperar el acceso.</p>
+    <p class="mt-2 text-sm">¿Eres joven y aún no tienes cuenta? <router-link class="text-brand underline" to="/registro">Crear cuenta</router-link></p>
   </section>
 </template>
