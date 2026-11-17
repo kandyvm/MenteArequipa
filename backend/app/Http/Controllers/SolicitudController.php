@@ -15,6 +15,9 @@ use Illuminate\Support\Facades\Gate;
 
 class SolicitudController extends Controller
 {
+    /** Máximo de solicitudes en curso por joven (evita que una sola cuenta llene la cola del orientador). */
+    private const MAXIMO_EN_CURSO = 3;
+
     /** Lista paginada (15 por página) según el rol. */
     public function index(Request $request)
     {
@@ -55,6 +58,17 @@ class SolicitudController extends Controller
 
         // El consentimiento y la solicitud se guardan juntos o no se guarda nada
         $solicitud = DB::transaction(function () use ($datos, $joven, $request) {
+            // Se bloquea al joven para que dos envíos al mismo tiempo no superen el máximo
+            Joven::whereKey($joven->id)->lockForUpdate()->first();
+            $enCurso = Solicitud::where('joven_id', $joven->id)
+                ->whereIn('estado', ['REGISTRADA', 'EN_REVISION', 'DERIVADA', 'ACEPTADA'])
+                ->count();
+            abort_if(
+                $enCurso >= self::MAXIMO_EN_CURSO,
+                422,
+                'Ya tienes '.self::MAXIMO_EN_CURSO.' solicitudes en curso. Espera a que el equipo las revise. Si estás en peligro ahora, llama a la Línea 113, opción 5.'
+            );
+
             Consentimiento::create([
                 'joven_id' => $joven->id,
                 'version_texto' => Consentimiento::VERSION_ACTUAL,

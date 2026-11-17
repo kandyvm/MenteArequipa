@@ -13,7 +13,11 @@ class DerivacionResource extends JsonResource
             'id' => $this->id,
             'solicitud_id' => $this->solicitud_id,
             'solicitud' => $this->whenLoaded('solicitud', fn () => [
-                'codigo' => $this->solicitud->codigo,
+                // Un centro que rechazó (o al que le anularon) la derivación ya no recibe el código:
+                // con él podría seguir el caso en la consulta pública y saber a qué otro centro fue
+                'codigo' => $request->user()?->rol === 'CENTRO' && $this->estado === 'RECHAZADA'
+                    ? null
+                    : $this->solicitud->codigo,
                 'nivel_riesgo' => $this->solicitud->nivel_riesgo,
             ]),
             'centro' => $this->whenLoaded('centro', fn () => [
