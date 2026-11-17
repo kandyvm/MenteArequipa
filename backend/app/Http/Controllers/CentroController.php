@@ -22,7 +22,9 @@ class CentroController extends Controller
         if ($request->user()->rol !== 'ADMIN') {
             $q->where('activo', true);
         }
-        if ($distrito = $request->query('distrito')) {
+        // Solo se filtra si llega como texto (?distrito[]=x no debe provocar un error 500)
+        $distrito = $request->query('distrito');
+        if (is_string($distrito) && $distrito !== '') {
             $q->whereRaw('LOWER(distrito) = ?', [mb_strtolower($distrito)]);
         }
 

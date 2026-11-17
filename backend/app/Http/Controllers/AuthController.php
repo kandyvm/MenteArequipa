@@ -45,6 +45,11 @@ class AuthController extends Controller
             return response()->json(['message' => 'Credenciales no válidas.'], 422);
         }
 
+        // Una cuenta de centro no entra si su centro fue desactivado (se avisa solo con la contraseña correcta)
+        if ($usuario->rol === 'CENTRO' && ! $usuario->centro?->activo) {
+            return response()->json(['message' => 'El centro de esta cuenta está desactivado.'], 403);
+        }
+
         Auth::guard('web')->login($usuario);
         $request->session()->regenerate();
         Auditoria::registrar('INICIAR_SESION', 'usuario', $usuario->id, $usuario->id);

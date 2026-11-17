@@ -84,7 +84,8 @@ onMounted(() => cargar(1))
             <td class="block sm:table-cell p-3 font-mono"><span class="sm:hidden font-sans font-semibold text-muted mr-2">Código:</span>{{ s.codigo }}</td>
             <td class="block sm:table-cell p-3"><span class="sm:hidden font-semibold text-muted mr-2">Motivo:</span>{{ s.motivo }}</td>
             <td class="block sm:table-cell p-3"><span class="sm:hidden font-semibold text-muted mr-2">Riesgo:</span><Insignia :valor="s.nivel_riesgo" /></td>
-            <td class="block sm:table-cell p-3"><span class="sm:hidden font-semibold text-muted mr-2">Estado:</span><Insignia :valor="s.estado" /></td>
+            <td class="block sm:table-cell p-3"><span class="sm:hidden font-semibold text-muted mr-2">Estado:</span><Insignia :valor="s.estado" />
+              <p v-if="auth.rol === 'ORIENTADOR' && derivacionActiva(s) && !s.derivacion.centro_activo" class="mt-1 text-sm font-medium text-red-700">Centro desactivado: anula la derivación y vuelve a derivar.</p></td>
             <td class="block sm:table-cell p-3"><div class="flex flex-wrap gap-2">
               <router-link class="btn-secundario" :to="`/consulta/${s.codigo}`">Ver estado</router-link>
               <button v-if="auth.rol === 'JOVEN' && s.estado === 'REGISTRADA'" class="btn-secundario" @click="cancelar(s)">Cancelar</button>

@@ -25,6 +25,7 @@ class SolicitudResource extends JsonResource
                 'centro_id' => $d->centro_id,
                 'prioridad' => $d->prioridad,
                 'estado' => $d->estado,
+                'centro_activo' => (bool) $d->centro?->activo,
             ])->values()),
         ];
     }
