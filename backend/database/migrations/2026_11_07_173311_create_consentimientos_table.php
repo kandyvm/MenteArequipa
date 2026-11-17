@@ -17,7 +17,7 @@ return new class extends Migration
             $table->timestampTz('aceptado_en')->useCurrent();
         });
 
-        DB::statement("ALTER TABLE consentimientos ADD COLUMN ip INET NOT NULL");
+        DB::statement('ALTER TABLE consentimientos ADD COLUMN ip INET NOT NULL');
     }
 
     public function down(): void

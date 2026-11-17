@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Derivacion extends Model
 {
     protected $table = 'derivaciones';
+
     public $timestamps = false;
 
     protected $fillable = [

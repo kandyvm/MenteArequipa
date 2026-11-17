@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use App\Models\Auditoria;
-use App\Models\Centro;
 use App\Models\Recurso;
 use App\Models\Usuario;
 use Illuminate\Foundation\Testing\RefreshDatabase;

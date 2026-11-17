@@ -4,9 +4,9 @@ namespace Tests\Feature;
 
 use App\Models\Centro;
 use App\Models\Derivacion;
+use App\Models\Joven;
 use App\Models\Solicitud;
 use App\Models\Usuario;
-use App\Models\Joven;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
@@ -21,7 +21,6 @@ class SeguridadTest extends TestCase
     use RefreshDatabase;
 
     private const CLAVE = 'Prueba2026!';
-
 
     public function test_la_contrasena_se_guarda_con_hash(): void
     {
@@ -49,7 +48,7 @@ class SeguridadTest extends TestCase
 
     public function test_inyeccion_sql_en_el_codigo_publico_devuelve_404(): void
     {
-        $this->getJson('/api/consulta/' . rawurlencode("JOV-' OR 1=1 --"))
+        $this->getJson('/api/consulta/'.rawurlencode("JOV-' OR 1=1 --"))
             ->assertNotFound();
     }
 
@@ -158,7 +157,8 @@ class SeguridadTest extends TestCase
             ->assertOk()
             ->assertJsonPath('data.estado', 'ACEPTADA');
     }
-        public function test_no_se_cierra_una_solicitud_con_derivacion_activa(): void
+
+    public function test_no_se_cierra_una_solicitud_con_derivacion_activa(): void
     {
         $centro = $this->crearCentro();
         $orientador = $this->crearUsuario('ORIENTADOR', 'orientador@prueba.pe');
@@ -260,7 +260,7 @@ class SeguridadTest extends TestCase
         $joven = Joven::where('usuario_id', $usuarioJoven->id)->firstOrFail();
 
         return Solicitud::create([
-            'codigo' => 'JOV-' . strtoupper(substr(md5(uniqid('', true)), 0, 5)),
+            'codigo' => 'JOV-'.strtoupper(substr(md5(uniqid('', true)), 0, 5)),
             'joven_id' => $joven->id,
             'motivo' => 'Ansiedad',
             'descripcion' => 'Descripción de prueba',
