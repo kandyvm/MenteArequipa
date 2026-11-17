@@ -18,7 +18,8 @@ class DashboardController extends Controller
             'data' => [
                 'solicitudes_nuevas' => Solicitud::where('estado', 'REGISTRADA')->count(),
                 'derivaciones_en_curso' => Derivacion::whereIn('estado', ['PENDIENTE', 'ACEPTADA'])->count(),
-                'casos_atendidos' => Solicitud::where('estado', 'ATENDIDA')->count(),
+                // Se cuentan las derivaciones atendidas: el caso sigue contando aunque después se cierre
+                'casos_atendidos' => Derivacion::where('estado', 'ATENDIDA')->distinct()->count('solicitud_id'),
                 'derivaciones_113' => Solicitud::where('derivada_113', true)->count(),
             ],
         ]);

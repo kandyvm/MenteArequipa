@@ -29,7 +29,7 @@ Navegador ──► Sitio estático (frontend/, Vue 3)
 | Capa | Tecnologías |
 |---|---|
 | Backend | Laravel 12, PHP 8.2 o superior, Laravel Sanctum 4, PostgreSQL |
-| Frontend | Vue 3, Pinia, Vue Router, Axios, Tailwind CSS 3, Vite 5 |
+| Frontend | Vue 3, Pinia, Vue Router, Axios, Tailwind CSS 3, Vite 6 |
 | Pruebas y CI | PHPUnit (`php artisan test`) y GitHub Actions (backend y frontend) |
 | Despliegue | Render (Docker para el backend, sitio estático para el frontend) |
 
@@ -139,7 +139,7 @@ php artisan test --filter=SeguridadTest
 ```
 
 Las pruebas usan la base `mente_arequipa_test` (PostgreSQL), porque el esquema usa `INET` y triggers.
-GitHub Actions las ejecuta en cada push y Pull Request; también compila el frontend (`npm ci` y `npm run build`).
+GitHub Actions las ejecuta en cada push a `main`, `develop`, `feature/**` y `fix/**`, y en cada Pull Request hacia `main` o `develop`; también compila el frontend (`npm ci` y `npm run build`).
 
 ## Despliegue en Render
 
