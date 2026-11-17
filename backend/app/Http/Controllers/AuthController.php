@@ -15,6 +15,9 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
+    /** Hash bcrypt (costo 12, como BCRYPT_ROUNDS) de un texto aleatorio que nadie conoce: nunca coincide. */
+    private const HASH_FICTICIO = '$2y$12$IqvIUXP5WXAIjrevr0gMUurbvTs37gR2ex7cbpvwgkqS935Z3fUVq';
+
     /** Inicia sesión con correo y contraseña (límite de 5 intentos por minuto en la ruta). */
     public function login(Request $request): JsonResponse
     {
@@ -28,11 +31,15 @@ class AuthController extends Controller
             'password' => ['required', 'string'],
         ]);
 
-        $usuario = Usuario::where('correo', $datos['correo'])->where('activo', true)->first();
+        // Primero el correo tal como se escribió (cuentas antiguas con mayúsculas) y, si no, sin importar mayúsculas
+        $usuario = Usuario::where('correo', $datos['correo'])->where('activo', true)->first()
+            ?? Usuario::whereRaw('LOWER(correo) = ?', [mb_strtolower(trim($datos['correo']))])
+                ->where('activo', true)->orderBy('id')->first();
 
         // Se compara siempre contra un hash (real o ficticio) para que el tiempo de
-        // respuesta no revele si el correo existe
-        $hash = $usuario?->contrasena_hash ?? Hash::make('contrasena-ficticia');
+        // respuesta no revele si el correo existe. El ficticio es fijo: crearlo en cada
+        // intento (Hash::make) duplicaba el tiempo y delataba los correos inexistentes.
+        $hash = $usuario?->contrasena_hash ?? self::HASH_FICTICIO;
         $coincide = Hash::check($datos['password'], $hash);
 
         // Mensaje genérico: no revela si el correo existe

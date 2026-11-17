@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Auditoria;
 use App\Models\Solicitud;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Log;
 
 class ConsultaPublicaController extends Controller
 {
@@ -17,6 +18,9 @@ class ConsultaPublicaController extends Controller
         $solicitud = Solicitud::where('codigo', $codigo)->first();
 
         if (! $solicitud) {
+            // Queda en el log (con la IP, sin el código) para detectar a quien intente adivinar códigos
+            Log::warning('Consulta pública con un código inexistente', ['ip' => request()->ip()]);
+
             return response()->json(['message' => 'Código no encontrado.'], 404);
         }
 

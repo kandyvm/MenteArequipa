@@ -7,6 +7,7 @@ use App\Models\Usuario;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
@@ -31,7 +32,11 @@ class UsuarioController extends Controller
         abort_unless($request->user()->rol === 'ADMIN', 403);
 
         $datos = $request->validate([
-            'correo' => ['required', 'email', 'max:150', 'unique:usuarios,correo'],
+            'correo' => ['required', 'email', 'max:150', function ($atributo, $valor, $fallar) {
+                if (Usuario::correoEnUso($valor)) {
+                    $fallar('Ese correo ya está registrado.');
+                }
+            }],
             'password' => ['required', 'string', 'min:10'],
             'rol' => ['required', Rule::in(['ORIENTADOR', 'CENTRO', 'ADMIN'])],
             'centro_id' => ['required_if:rol,CENTRO', 'nullable', 'integer', 'exists:centros,id'],
@@ -81,7 +86,11 @@ class UsuarioController extends Controller
         }
         if ($esAdmin) {
             $reglas += [
-                'correo' => ['sometimes', 'email', 'max:150', Rule::unique('usuarios', 'correo')->ignore($usuario->id)],
+                'correo' => ['sometimes', 'email', 'max:150', function ($atributo, $valor, $fallar) use ($usuario) {
+                    if (Usuario::correoEnUso($valor, $usuario->id)) {
+                        $fallar('Ese correo ya está registrado.');
+                    }
+                }],
                 'activo' => ['sometimes', 'boolean'],
                 'centro_id' => ['sometimes', 'nullable', 'integer', 'exists:centros,id'],
             ];
@@ -89,9 +98,17 @@ class UsuarioController extends Controller
 
         $datos = $request->validate($reglas);
 
-        if ($esPropia && isset($datos['password'])
-            && ! Hash::check($datos['password_actual'], $usuario->contrasena_hash)) {
-            throw ValidationException::withMessages(['password_actual' => 'La contraseña actual no es correcta.']);
+        if ($esPropia && isset($datos['password'])) {
+            // Máximo 5 intentos fallidos por minuto: quien encuentre una sesión abierta no puede adivinar la clave
+            $limite = 'contrasena-actual:'.$usuario->id;
+            abort_if(RateLimiter::tooManyAttempts($limite, 5), 429, 'Demasiados intentos. Espera un minuto e inténtalo de nuevo.');
+
+            if (! Hash::check($datos['password_actual'], $usuario->contrasena_hash)) {
+                RateLimiter::hit($limite, 60);
+                Auditoria::registrar('CAMBIO_CONTRASENA_FALLIDO', 'usuario', $usuario->id);
+                throw ValidationException::withMessages(['password_actual' => 'La contraseña actual no es correcta.']);
+            }
+            RateLimiter::clear($limite);
         }
         unset($datos['password_actual']);
 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Usuario;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -24,12 +25,20 @@ class RegistroJovenRequest extends FormRequest
         if ($this->has('contrasena') && ! $this->has('password')) {
             $this->merge(['password' => $this->input('contrasena')]);
         }
+        // El correo se compara y se guarda en minúsculas
+        if (is_string($this->input('correo'))) {
+            $this->merge(['correo' => mb_strtolower(trim($this->input('correo')))]);
+        }
     }
 
     public function rules(): array
     {
         return [
-            'correo' => ['required', 'email', 'max:150', 'unique:usuarios,correo'],
+            'correo' => ['required', 'email', 'max:150', function ($atributo, $valor, $fallar) {
+                if (Usuario::correoEnUso($valor)) {
+                    $fallar('Ese correo ya está registrado.');
+                }
+            }],
             'password' => ['required', 'string', 'min:10'],
             // Edad de 18 a 29 años, validada en el servidor
             'fecha_nacimiento' => [
