@@ -23,13 +23,13 @@ Antes de migrar, crea las bases `mente_arequipa` y `mente_arequipa_test` en Post
 | `app/Http/Controllers` | Controladores de la API (autenticación, solicitudes, derivaciones, consulta pública, centros, usuarios, recursos, dashboard y auditoría) |
 | `app/Http/Requests` | Validación en el servidor (Form Requests) |
 | `app/Http/Resources` | Formato de las respuestas JSON |
-| `app/Http/Middleware` | `EnsureUsuarioActivo`: bloquea cuentas desactivadas |
+| `app/Http/Middleware` | `EnsureUsuarioActivo` (bloquea cuentas desactivadas), `IpRealDelCliente` (toma la IP real del visitante detrás de Render y Cloudflare) y `CabecerasSeguridad` (cabeceras de seguridad en todas las respuestas) |
 | `app/Policies` | Autorización de solicitudes, derivaciones y centros |
 | `app/Observers` | Registran en la auditoría los cambios de solicitudes y derivaciones |
 | `database/migrations` | Esquema de la base, incluido el trigger que impide modificar o borrar registros de la auditoría (no cubre `TRUNCATE`) |
 | `database/seeders` | Centros y usuarios de prueba |
 | `routes/api.php` | Todas las rutas de la API |
-| `tests/Feature/SeguridadTest.php` | Pruebas de seguridad |
+| `tests/Feature` | Pruebas automáticas: seguridad, acceso por ID, flujo de derivaciones, límites de intentos, auditoría, cambio de contraseña, cabeceras, IP real y respuestas de la API |
 
 ## Autenticación
 

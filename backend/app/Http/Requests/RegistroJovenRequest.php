@@ -34,8 +34,8 @@ class RegistroJovenRequest extends FormRequest
             // Edad de 18 a 29 años, validada en el servidor
             'fecha_nacimiento' => [
                 'required', 'date',
-                'before_or_equal:' . now()->subYears(18)->toDateString(),
-                'after:' . now()->subYears(30)->toDateString(),
+                'before_or_equal:'.now()->subYears(18)->toDateString(),
+                'after:'.now()->subYears(30)->toDateString(),
             ],
             'distrito' => ['required', 'string', Rule::in(self::DISTRITOS)],
             'telefono' => ['nullable', 'string', 'max:20'],

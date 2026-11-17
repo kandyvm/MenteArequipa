@@ -10,3 +10,6 @@ export const ETAPAS = [
   ['REGISTRADA', 'Registrada'], ['EN_REVISION', 'En revisión'], ['DERIVADA', 'Derivada'],
   ['ACEPTADA', 'Aceptada'], ['ATENDIDA', 'Atendida'],
 ]
+
+/** Correo del equipo: derechos ARCO (consentimiento) y ayuda si alguien olvida su contraseña (login). */
+export const CORREO_CONTACTO = 'nickashii19@gmail.com'

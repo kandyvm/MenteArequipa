@@ -49,7 +49,7 @@ class SolicitudController extends Controller
         $solicitud = DB::transaction(function () use ($datos, $joven, $request) {
             Consentimiento::create([
                 'joven_id' => $joven->id,
-                'version_texto' => 'v1.0',
+                'version_texto' => Consentimiento::VERSION_ACTUAL,
                 'ip' => $request->ip(),
                 'user_agent' => substr((string) $request->userAgent(), 0, 255),
             ]);

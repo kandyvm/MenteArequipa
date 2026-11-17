@@ -3,7 +3,7 @@ import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuth } from '../stores/auth'
 import { erroresDe, mensajeDe } from '../api'
-import { DISTRITOS } from '../constantes'
+import { CORREO_CONTACTO, DISTRITOS } from '../constantes'
 const auth = useAuth(), router = useRouter()
 const f = reactive({ correo: '', contrasena: '', contrasena_confirmation: '', fecha_nacimiento: '', distrito: '', telefono: '', acepta_consentimiento: false })
 const errores = ref({}), general = ref(''), cargando = ref(false)
@@ -64,7 +64,7 @@ async function enviar() {
         <summary class="cursor-pointer font-medium min-h-[44px] flex items-center">Consentimiento informado (Ley N.º 29733)</summary>
         <p class="mt-2">Usaremos tus datos solo para orientarte y dar seguimiento a tus derivaciones. No pedimos diagnóstico ni historia clínica. Guardamos la fecha, tu IP y tu navegador al aceptar. Puedes consultar tu caso con un código, sin dar tu nombre.</p>
         <p class="mt-2">Es un proyecto académico en fase de prueba, así que no ingreses datos reales. La información se guarda en servidores de Render, fuera del Perú.</p>
-        <p class="mt-2">Puedes pedir ver, corregir o eliminar tus datos, u oponerte a su uso (derechos ARCO), escribiendo al equipo del proyecto.</p>
+        <p class="mt-2">Puedes pedir ver, corregir o eliminar tus datos, u oponerte a su uso (derechos ARCO), escribiendo a <a class="text-brand underline" :href="`mailto:${CORREO_CONTACTO}`">{{ CORREO_CONTACTO }}</a>.</p>
       </details>
       <label class="flex items-start gap-3 mb-1 min-h-[44px]">
         <input v-model="f.acepta_consentimiento" type="checkbox" class="mt-1 h-5 w-5" :aria-describedby="errores.acepta_consentimiento ? 'cons-err' : undefined" />
