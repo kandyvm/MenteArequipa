@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Joven extends Model
 {
     protected $table = 'jovenes';
+
     public $timestamps = false;
 
     protected $fillable = ['usuario_id', 'fecha_nacimiento', 'distrito', 'telefono'];

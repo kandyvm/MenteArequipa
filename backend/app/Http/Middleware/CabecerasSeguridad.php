@@ -33,6 +33,7 @@ class CabecerasSeguridad
         }
         // No revelar la versión exacta de PHP (la cabecera la añade PHP, no Laravel)
         header_remove('X-Powered-By');
+
         return $respuesta;
     }
 }

@@ -11,9 +11,11 @@ class Usuario extends Authenticatable
     use HasApiTokens, Notifiable;
 
     protected $table = 'usuarios';
+
     public $timestamps = false;
 
     protected $fillable = ['correo', 'contrasena_hash', 'rol', 'centro_id', 'activo'];
+
     protected $hidden = ['contrasena_hash'];
 
     protected function casts(): array

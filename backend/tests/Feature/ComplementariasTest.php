@@ -183,7 +183,7 @@ class ComplementariasTest extends TestCase
     private function registroConNacimiento(string $fecha): TestResponse
     {
         return $this->postJson('/api/registro', [
-            'correo' => 'edad.' . md5($fecha) . '@prueba.pe',
+            'correo' => 'edad.'.md5($fecha).'@prueba.pe',
             'password' => 'ClaveSegura2026',
             'fecha_nacimiento' => $fecha,
             'distrito' => 'Arequipa',
@@ -242,7 +242,7 @@ class ComplementariasTest extends TestCase
         $joven = Joven::where('usuario_id', $usuarioJoven->id)->firstOrFail();
 
         return Solicitud::create([
-            'codigo' => 'JOV-' . strtoupper(substr(md5(uniqid('', true)), 0, 5)),
+            'codigo' => 'JOV-'.strtoupper(substr(md5(uniqid('', true)), 0, 5)),
             'joven_id' => $joven->id,
             'motivo' => 'Ansiedad',
             'descripcion' => 'Descripción de prueba',

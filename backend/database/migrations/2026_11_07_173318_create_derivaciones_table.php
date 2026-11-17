@@ -24,7 +24,7 @@ return new class extends Migration
             $table->index('centro_id');
         });
 
-        DB::statement("ALTER TABLE derivaciones ADD CONSTRAINT derivaciones_prioridad_check CHECK (prioridad IN (1,3,5))");
+        DB::statement('ALTER TABLE derivaciones ADD CONSTRAINT derivaciones_prioridad_check CHECK (prioridad IN (1,3,5))');
         DB::statement("ALTER TABLE derivaciones ADD CONSTRAINT derivaciones_estado_check CHECK (estado IN ('PENDIENTE','ACEPTADA','RECHAZADA','ATENDIDA'))");
     }
 

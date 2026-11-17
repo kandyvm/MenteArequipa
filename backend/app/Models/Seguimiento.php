@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Seguimiento extends Model
 {
     protected $table = 'seguimientos';
+
     public $timestamps = false;
 
     protected $fillable = ['derivacion_id', 'autor_id', 'estado_nuevo', 'nota'];

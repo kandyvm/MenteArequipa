@@ -18,7 +18,7 @@ return new class extends Migration
             $table->timestampTz('creado_en')->useCurrent();
         });
 
-        DB::statement("ALTER TABLE auditoria ADD COLUMN ip INET NOT NULL");
+        DB::statement('ALTER TABLE auditoria ADD COLUMN ip INET NOT NULL');
 
         DB::unprepared("
             CREATE OR REPLACE FUNCTION auditoria_inmutable() RETURNS trigger AS $$
@@ -28,17 +28,17 @@ return new class extends Migration
             $$ LANGUAGE plpgsql;
         ");
 
-        DB::unprepared("
+        DB::unprepared('
             CREATE TRIGGER auditoria_sin_update_delete
             BEFORE UPDATE OR DELETE ON auditoria
             FOR EACH ROW EXECUTE FUNCTION auditoria_inmutable();
-        ");
+        ');
     }
 
     public function down(): void
     {
-        DB::unprepared("DROP TRIGGER IF EXISTS auditoria_sin_update_delete ON auditoria");
-        DB::unprepared("DROP FUNCTION IF EXISTS auditoria_inmutable()");
+        DB::unprepared('DROP TRIGGER IF EXISTS auditoria_sin_update_delete ON auditoria');
+        DB::unprepared('DROP FUNCTION IF EXISTS auditoria_inmutable()');
         Schema::dropIfExists('auditoria');
     }
 };

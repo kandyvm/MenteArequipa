@@ -17,19 +17,19 @@ class DatabaseSeeder extends Seeder
         $sanAgustin = Centro::firstOrCreate(
             ['nombre' => 'Centro de Salud Mental San Agustín'],
             ['tipo' => 'MINSA', 'distrito' => 'Cerro Colorado', 'direccion' => 'Dirección de prueba 100',
-             'servicios' => 'Turno mañana y tarde', 'activo' => true]
+                'servicios' => 'Turno mañana y tarde', 'activo' => true]
         );
 
         $honorio = Centro::firstOrCreate(
             ['nombre' => 'Hospital Honorio Delgado'],
             ['tipo' => 'MINSA', 'distrito' => 'Arequipa', 'direccion' => 'Dirección de prueba 200',
-             'servicios' => 'Psiquiatría y psicología', 'activo' => true]
+                'servicios' => 'Psiquiatría y psicología', 'activo' => true]
         );
 
         $comunitario = Centro::firstOrCreate(
             ['nombre' => 'Centro Comunitario de Prueba'],
             ['tipo' => 'ONG', 'distrito' => 'Cayma', 'direccion' => 'Dirección de prueba 300',
-             'servicios' => 'Acompañamiento psicosocial', 'activo' => true]
+                'servicios' => 'Acompañamiento psicosocial', 'activo' => true]
         );
 
         // Contraseñas de las cuentas de prueba. Pueden definirse en Render con las variables
