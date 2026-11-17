@@ -16,6 +16,7 @@ return [
     'numeric' => ':Attribute debe ser un número.',
     'required' => ':Attribute es obligatorio.',
     'required_if' => ':Attribute es obligatorio cuando :other es :value.',
+    'required_with' => ':Attribute es obligatorio cuando escribes :values.',
     'string' => ':Attribute debe ser texto.',
     'unique' => 'Ese :attribute ya está registrado.',
     'url' => ':Attribute debe ser un enlace válido (http o https).',
