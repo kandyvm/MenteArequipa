@@ -28,6 +28,10 @@ class ConsultaPublicaController extends Controller
         // El centro solo se muestra si la solicitud está en manos de un centro
         $conCentro = in_array($solicitud->estado, ['DERIVADA', 'ACEPTADA', 'ATENDIDA'], true);
         $centro = ($conCentro && $derivacion) ? $derivacion->centro?->nombre : null;
+        // Si el caso aún está por atenderse en un centro desactivado, no se envía al joven a ese centro
+        if (in_array($solicitud->estado, ['DERIVADA', 'ACEPTADA'], true) && ! $derivacion?->centro?->activo) {
+            $centro = null;
+        }
 
         // Fecha de la última actualización: último seguimiento o creación de la solicitud
         $ultimo = $derivacion?->seguimientos()->reorder()->orderByDesc('id')->first();

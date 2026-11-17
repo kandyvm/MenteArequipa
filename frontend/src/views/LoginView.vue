@@ -10,7 +10,10 @@ const ver = ref(false), error = ref(''), cargando = ref(false)
 async function enviar() {
   error.value = ''; cargando.value = true
   try { await auth.login(f.correo, f.contrasena); router.push(route.query.redirect || auth.inicio) }
-  catch (e) { error.value = e.response?.status === 422 ? 'Correo o contraseña incorrectos.' : mensajeDe(e) }
+  catch (e) {
+    const s = e.response?.status
+    error.value = s === 422 ? 'Correo o contraseña incorrectos.' : s === 403 && e.response.data?.message ? e.response.data.message : mensajeDe(e)
+  }
   finally { cargando.value = false }
 }
 </script>

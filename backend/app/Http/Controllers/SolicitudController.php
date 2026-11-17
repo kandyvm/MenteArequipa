@@ -36,6 +36,14 @@ class SolicitudController extends Controller
             $q->where('nivel_riesgo', $nivel);
         }
 
+        // Orientador, centro y admin: primero los casos que esperan atención y, entre ellos, los de mayor
+        // riesgo (CRISIS, ALTO, MEDIO, BAJO), para que un caso en crisis no quede en otra página.
+        // El joven ve sus solicitudes por fecha, como siempre.
+        if ($u->rol !== 'JOVEN') {
+            $q->orderByRaw("CASE WHEN estado IN ('CERRADA', 'CANCELADA') THEN 2 WHEN estado = 'ATENDIDA' THEN 1 ELSE 0 END")
+                ->orderByRaw("CASE nivel_riesgo WHEN 'CRISIS' THEN 0 WHEN 'ALTO' THEN 1 WHEN 'MEDIO' THEN 2 ELSE 3 END");
+        }
+
         return SolicitudResource::collection($q->orderByDesc('id')->paginate(15));
     }
 
@@ -139,7 +147,8 @@ class SolicitudController extends Controller
             if ($u->rol === 'CENTRO') {
                 $d->vigentesParaCentro($u->centro_id);
             }
-            $d->orderBy('id');
+            // El centro se carga para saber si sigue activo (el orientador debe reasignar si no)
+            $d->with('centro:id,activo')->orderBy('id');
         }];
     }
 
