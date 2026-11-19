@@ -18,6 +18,9 @@ class SolicitudController extends Controller
     /** Máximo de solicitudes en curso por joven (evita que una sola cuenta llene la cola del orientador). */
     private const MAXIMO_EN_CURSO = 3;
 
+    /** Tope para solicitudes de CRISIS: se aceptan aunque ya haya 3 en curso. */
+    private const MAXIMO_EN_CURSO_CRISIS = 6;
+
     /** Lista paginada (15 por página) según el rol. */
     public function index(Request $request)
     {
@@ -63,10 +66,13 @@ class SolicitudController extends Controller
             $enCurso = Solicitud::where('joven_id', $joven->id)
                 ->whereIn('estado', ['REGISTRADA', 'EN_REVISION', 'DERIVADA', 'ACEPTADA'])
                 ->count();
+            // Una solicitud de CRISIS no se frena por el máximo normal (no se deja sin registrar a
+            // alguien en peligro); solo un tope amplio evita que se abuse de ese nivel para saltarlo.
+            $maximo = $datos['nivel_riesgo'] === 'CRISIS' ? self::MAXIMO_EN_CURSO_CRISIS : self::MAXIMO_EN_CURSO;
             abort_if(
-                $enCurso >= self::MAXIMO_EN_CURSO,
+                $enCurso >= $maximo,
                 422,
-                'Ya tienes '.self::MAXIMO_EN_CURSO.' solicitudes en curso. Espera a que el equipo las revise. Si estás en peligro ahora, llama a la Línea 113, opción 5.'
+                'Ya tienes '.$enCurso.' solicitudes en curso. Espera a que el equipo las revise. Si estás en peligro ahora, llama a la Línea 113, opción 5.'
             );
 
             Consentimiento::create([
