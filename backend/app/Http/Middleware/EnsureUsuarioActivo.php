@@ -29,6 +29,8 @@ class EnsureUsuarioActivo
 
             return response()->json([
                 'message' => $centroDesactivado ? 'El centro de esta cuenta está desactivado.' : 'Cuenta desactivada.',
+                // Marca para que el frontend muestre este motivo (y no "No tienes permiso") y cierre la sesión
+                'cuenta_desactivada' => true,
             ], 403);
         }
 
