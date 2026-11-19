@@ -16,6 +16,12 @@ api.interceptors.response.use(null, (e) => {
     useAuth(pinia).guardar(null)
     router.push('/login')
   }
+  // Cuenta o centro desactivado: el servidor ya cerró la sesión; se vuelve al login mostrando el motivo
+  if (e.response?.status === 403 && e.response.data?.cuenta_desactivada && useAuth(pinia).logueado) {
+    useAuth(pinia).guardar(null)
+    // Solo se pasa una clave fija; el texto lo elige LoginView (nadie puede inyectar mensajes por la URL)
+    router.push({ path: '/login', query: { motivo: /centro/i.test(e.response.data.message ?? '') ? 'centro' : 'cuenta' } })
+  }
   return Promise.reject(e)
 })
 createApp(App).use(pinia).use(router).mount('#app')

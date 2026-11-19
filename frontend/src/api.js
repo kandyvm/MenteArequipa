@@ -18,6 +18,8 @@ export function erroresDe(e) {
 export function mensajeDe(e) {
   const s = e.response?.status
   if (s === 429) return 'Demasiados intentos. Espera un minuto e inténtalo de nuevo.'
+  // Cuenta o centro desactivado con la sesión abierta: se muestra el motivo real que envía el servidor
+  if (s === 403 && e.response?.data?.cuenta_desactivada) return e.response.data.message
   if (s === 403) return 'No tienes permiso para esta acción.'
   if (s === 404) return 'No encontramos lo que buscas.'
   if (s === 409) return e.response?.data?.message ?? 'No se puede hacer ese cambio en el estado actual.'

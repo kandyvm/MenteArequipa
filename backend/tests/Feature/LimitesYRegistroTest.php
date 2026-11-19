@@ -28,7 +28,8 @@ class LimitesYRegistroTest extends TestCase
 
     public function test_el_registro_no_consume_los_intentos_de_login(): void
     {
-        for ($i = 0; $i < 5; $i++) {
+        // Tope de 30 registros por minuto desde una misma IP (un aula entera puede registrarse)
+        for ($i = 0; $i < 30; $i++) {
             $this->postJson('/api/registro', [])->assertStatus(422);
         }
         $this->postJson('/api/registro', [])->assertStatus(429);

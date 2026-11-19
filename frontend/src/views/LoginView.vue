@@ -6,7 +6,10 @@ import { mensajeDe } from '../api'
 import { CORREO_CONTACTO } from '../constantes'
 const auth = useAuth(), route = useRoute(), router = useRouter()
 const f = reactive({ correo: '', contrasena: '' })
-const ver = ref(false), error = ref(''), cargando = ref(false)
+// Si la sesión se cerró porque la cuenta o el centro fue desactivado, se explica el motivo real
+const MOTIVOS = { centro: 'El centro de esta cuenta está desactivado.', cuenta: 'Cuenta desactivada.' }
+const motivo = Object.prototype.hasOwnProperty.call(MOTIVOS, route.query.motivo) ? MOTIVOS[route.query.motivo] : ''
+const ver = ref(false), error = ref(motivo), cargando = ref(false)
 async function enviar() {
   error.value = ''; cargando.value = true
   try { await auth.login(f.correo, f.contrasena); router.push(route.query.redirect || auth.inicio) }
