@@ -17,6 +17,8 @@ export function erroresDe(e) {
 /** Mensaje genérico y seguro para mostrar al usuario según el código HTTP. */
 export function mensajeDe(e) {
   const s = e.response?.status
+  // Cuenta bloqueada por muchos fallos: se muestra el mensaje real (la espera es de varios minutos)
+  if (s === 429 && e.response?.data?.cuenta_bloqueada) return e.response.data.message
   if (s === 429) return 'Demasiados intentos. Espera un minuto e inténtalo de nuevo.'
   // Cuenta o centro desactivado con la sesión abierta: se muestra el motivo real que envía el servidor
   if (s === 403 && e.response?.data?.cuenta_desactivada) return e.response.data.message

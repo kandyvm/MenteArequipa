@@ -10,7 +10,7 @@ use Tests\TestCase;
 
 /**
  * Resistencia a abusos: muchos casos CRISIS falsos no tapan a uno real que ya estaba esperando,
- * y una cuenta no admite más de 20 contraseñas fallidas cada 15 minutos aunque lleguen desde muchas redes.
+ * y una cuenta no admite más de 50 contraseñas fallidas cada 15 minutos aunque lleguen desde muchas redes.
  * Ejecutar: php artisan test --filter=AbusoCrisisYLoginTest
  */
 class AbusoCrisisYLoginTest extends TestCase
@@ -54,12 +54,12 @@ class AbusoCrisisYLoginTest extends TestCase
         $this->assertSame([$antiguo, $nuevo], $ids);
     }
 
-    public function test_una_cuenta_no_admite_mas_de_20_fallos_aunque_vengan_de_muchas_redes(): void
+    public function test_una_cuenta_no_admite_mas_de_50_fallos_aunque_vengan_de_muchas_redes(): void
     {
         $this->crearUsuario('ADMIN', 'admin@prueba.pe');
         $this->crearUsuario('ORIENTADOR', 'orientador@prueba.pe');
 
-        for ($i = 1; $i <= 20; $i++) {
+        for ($i = 1; $i <= 50; $i++) {
             $this->withHeaders(['CF-Connecting-IP' => "10.0.{$i}.1"])
                 ->postJson('/api/login', ['correo' => 'admin@prueba.pe', 'password' => "Adivina{$i}"])
                 ->assertStatus(422);
@@ -68,11 +68,28 @@ class AbusoCrisisYLoginTest extends TestCase
         // Desde otra red, incluso con la clave correcta, la cuenta espera unos minutos
         $this->withHeaders(['CF-Connecting-IP' => '10.9.9.9'])
             ->postJson('/api/login', ['correo' => 'Admin@Prueba.pe', 'password' => self::CLAVE])
-            ->assertStatus(429);
+            ->assertStatus(429)
+            ->assertJsonPath('cuenta_bloqueada', true)
+            ->assertJsonPath('message', 'Demasiados intentos fallidos para esta cuenta. Espera unos minutos e inténtalo de nuevo.');
 
         // Las demás cuentas no se afectan
         $this->withHeaders(self::FRONTEND + ['CF-Connecting-IP' => '10.9.9.9'])
             ->postJson('/api/login', ['correo' => 'orientador@prueba.pe', 'password' => self::CLAVE])
+            ->assertOk();
+    }
+
+    public function test_veinte_claves_falsas_de_otra_persona_ya_no_bloquean_una_cuenta_compartida(): void
+    {
+        $this->crearUsuario('JOVEN', 'joven@prueba.pe');
+
+        for ($i = 1; $i <= 20; $i++) {
+            $this->withHeaders(['CF-Connecting-IP' => "10.4.{$i}.1"])
+                ->postJson('/api/login', ['correo' => 'joven@prueba.pe', 'password' => "Falsa{$i}"])->assertStatus(422);
+        }
+
+        // El docente, desde otra red y con la clave correcta, entra
+        $this->withHeaders(self::FRONTEND + ['CF-Connecting-IP' => '10.4.99.1'])
+            ->postJson('/api/login', ['correo' => 'joven@prueba.pe', 'password' => self::CLAVE])
             ->assertOk();
     }
 
@@ -92,7 +109,7 @@ class AbusoCrisisYLoginTest extends TestCase
     {
         $this->crearUsuario('JOVEN', 'joven@prueba.pe');
 
-        for ($i = 1; $i <= 19; $i++) {
+        for ($i = 1; $i <= 49; $i++) {
             $this->withHeaders(['CF-Connecting-IP' => "10.2.{$i}.1"])
                 ->postJson('/api/login', ['correo' => 'joven@prueba.pe', 'password' => "Adivina{$i}"])->assertStatus(422);
         }
@@ -100,7 +117,7 @@ class AbusoCrisisYLoginTest extends TestCase
             ->postJson('/api/login', ['correo' => 'joven@prueba.pe', 'password' => self::CLAVE])->assertOk();
         $this->postJson('/api/logout');
 
-        for ($i = 1; $i <= 19; $i++) {
+        for ($i = 1; $i <= 49; $i++) {
             $this->withHeaders(['CF-Connecting-IP' => "10.3.{$i}.1"])
                 ->postJson('/api/login', ['correo' => 'joven@prueba.pe', 'password' => "Adivina{$i}"])->assertStatus(422);
         }

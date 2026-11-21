@@ -16,8 +16,12 @@ use Illuminate\Support\Facades\RateLimiter;
 
 class AuthController extends Controller
 {
-    /** Intentos fallidos permitidos por cuenta, sumando todas las redes, cada 15 minutos. */
-    private const MAXIMO_FALLOS_POR_CUENTA = 20;
+    /**
+     * Intentos fallidos permitidos por cuenta, sumando todas las redes, cada 15 minutos.
+     * Es alto a propósito: frena a quien prueba contraseñas, pero hace difícil bloquear por broma
+     * una cuenta compartida (con 20, cualquiera dejaba sin acceso a la cuenta de prueba).
+     */
+    private const MAXIMO_FALLOS_POR_CUENTA = 50;
 
     /** Hash bcrypt (costo 12, como BCRYPT_ROUNDS) de un texto aleatorio que nadie conoce: nunca coincide. */
     private const HASH_FICTICIO = '$2y$12$IqvIUXP5WXAIjrevr0gMUurbvTs37gR2ex7cbpvwgkqS935Z3fUVq';
@@ -39,7 +43,11 @@ class AuthController extends Controller
         // (varias personas pueden entrar a la misma cuenta de prueba sin bloquearla)
         $limiteCuenta = 'login-fallos:'.mb_strtolower(trim($datos['correo']));
         if (RateLimiter::tooManyAttempts($limiteCuenta, self::MAXIMO_FALLOS_POR_CUENTA)) {
-            return response()->json(['message' => 'Demasiados intentos fallidos para esta cuenta. Espera unos minutos.'], 429);
+            return response()->json([
+                'message' => 'Demasiados intentos fallidos para esta cuenta. Espera unos minutos e inténtalo de nuevo.',
+                // Marca para que el frontend muestre este mensaje (el bloqueo dura hasta 15 minutos, no uno)
+                'cuenta_bloqueada' => true,
+            ], 429);
         }
 
         // Primero el correo tal como se escribió (cuentas antiguas con mayúsculas) y, si no, sin importar mayúsculas
