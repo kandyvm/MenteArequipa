@@ -18,8 +18,8 @@ class SolicitudController extends Controller
     /** Máximo de solicitudes en curso por joven (evita que una sola cuenta llene la cola del orientador). */
     private const MAXIMO_EN_CURSO = 3;
 
-    /** Tope para solicitudes de CRISIS: se aceptan aunque ya haya 3 en curso. */
-    private const MAXIMO_EN_CURSO_CRISIS = 6;
+    /** Tope para solicitudes de CRISIS: se acepta una más aunque ya haya 3 en curso. */
+    private const MAXIMO_EN_CURSO_CRISIS = 4;
 
     /** Lista paginada (15 por página) según el rol. */
     public function index(Request $request)
@@ -44,10 +44,13 @@ class SolicitudController extends Controller
 
         // Orientador, centro y admin: primero los casos que esperan atención y, entre ellos, los de mayor
         // riesgo (CRISIS, ALTO, MEDIO, BAJO), para que un caso en crisis no quede en otra página.
+        // Dentro de un mismo riesgo, el que más tiempo lleva esperando va primero: así los casos
+        // creados después (aunque sean muchos) no tapan a uno que ya estaba esperando.
         // El joven ve sus solicitudes por fecha, como siempre.
         if ($u->rol !== 'JOVEN') {
             $q->orderByRaw("CASE WHEN estado IN ('CERRADA', 'CANCELADA') THEN 2 WHEN estado = 'ATENDIDA' THEN 1 ELSE 0 END")
-                ->orderByRaw("CASE nivel_riesgo WHEN 'CRISIS' THEN 0 WHEN 'ALTO' THEN 1 WHEN 'MEDIO' THEN 2 ELSE 3 END");
+                ->orderByRaw("CASE nivel_riesgo WHEN 'CRISIS' THEN 0 WHEN 'ALTO' THEN 1 WHEN 'MEDIO' THEN 2 ELSE 3 END")
+                ->orderByRaw("CASE WHEN estado NOT IN ('CERRADA', 'CANCELADA', 'ATENDIDA') THEN id END ASC");
         }
 
         return SolicitudResource::collection($q->orderByDesc('id')->paginate(15));

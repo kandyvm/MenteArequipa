@@ -11,7 +11,7 @@ use Tests\TestCase;
 
 /**
  * Una solicitud de CRISIS no se frena por el máximo de 3 solicitudes en curso
- * (solo por un tope amplio de 6, para que no se use ese nivel para saltarse el límite).
+ * (solo por un tope de 4, para que no se use ese nivel para saltarse el límite).
  * Ejecutar: php artisan test --filter=SolicitudCrisisTest
  */
 class SolicitudCrisisTest extends TestCase
@@ -37,14 +37,14 @@ class SolicitudCrisisTest extends TestCase
             ->assertJsonPath('message', 'Ya tienes 4 solicitudes en curso. Espera a que el equipo las revise. Si estás en peligro ahora, llama a la Línea 113, opción 5.');
     }
 
-    public function test_las_solicitudes_de_crisis_tienen_un_tope_amplio(): void
+    public function test_las_solicitudes_de_crisis_tienen_un_tope(): void
     {
         $joven = $this->crearJoven('joven@prueba.pe');
-        for ($i = 0; $i < 6; $i++) {
+        for ($i = 0; $i < 4; $i++) {
             $this->actingAs($joven)->postJson('/api/solicitudes', $this->datosSolicitud('CRISIS'))->assertCreated();
         }
         $this->actingAs($joven)->postJson('/api/solicitudes', $this->datosSolicitud('CRISIS'))->assertStatus(422);
-        $this->assertSame(6, Solicitud::count());
+        $this->assertSame(4, Solicitud::count());
     }
 
     private function datosSolicitud(string $riesgo): array
