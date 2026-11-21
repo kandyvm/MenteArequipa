@@ -8,8 +8,11 @@ use App\Observers\DerivacionObserver;
 use App\Observers\SolicitudObserver;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Lottery;
 use Illuminate\Support\ServiceProvider;
+use Throwable;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -55,5 +58,23 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('consulta', fn (Request $request) => in_array($request->user()?->rol, ['ORIENTADOR', 'CENTRO', 'ADMIN'], true)
             ? Limit::perMinute(120)->by('usuario:'.$request->user()->id)
             : Limit::perMinute(10)->by('ip:'.$request->ip()));
+
+        // Los contadores de intentos se guardan en la tabla cache y Laravel no borra solos los vencidos:
+        // cada intento con un correo distinto dejaba filas para siempre. Al terminar 1 de cada 100
+        // peticiones web se borran los vencidos. Nunca corre en consola (al desplegar, la tabla puede
+        // no existir todavía) y un error aquí no afecta la respuesta.
+        $this->app->terminating(function () {
+            $comandoDeConsola = $this->app->runningInConsole() && ! $this->app->runningUnitTests();
+            if ($comandoDeConsola || config('cache.default') !== 'database') {
+                return;
+            }
+            Lottery::odds(1, 100)->winner(function () {
+                try {
+                    DB::table(config('cache.stores.database.table', 'cache'))->where('expiration', '<=', time())->delete();
+                } catch (Throwable) {
+                    // Si falla, se intentará en otra petición
+                }
+            })->choose();
+        });
     }
 }
